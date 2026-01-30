@@ -1,5 +1,6 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import { Nav } from 'react-bootstrap';
+import { LayoutDashboard, Users, FileText, Video, Image, Mic, LogOut } from 'lucide-react';
 import './AdminSidebar.css';
 import '../../pages/admin/AdminMedia.css';
 
@@ -21,39 +22,39 @@ const AdminSidebar = () => {
 
             <Nav className="flex-column sidebar-nav">
                 <NavLink to="/admin/dashboard" className="sidebar-link">
-                    <span className="sidebar-icon">📊</span>
+                    <LayoutDashboard className="sidebar-icon" size={20} />
                     Dashboard
                 </NavLink>
 
                 <NavLink to="/admin/candidates" className="sidebar-link">
-                    <span className="sidebar-icon">👥</span>
+                    <Users className="sidebar-icon" size={20} />
                     Candidates
                 </NavLink>
 
                 <NavLink to="/admin/questionnaires" className="sidebar-link">
-                    <span className="sidebar-icon">📝</span>
+                    <FileText className="sidebar-icon" size={20} />
                     Questionnaires
                 </NavLink>
 
                 <NavLink to="/admin/videos" className="sidebar-link">
-                    <span className="sidebar-icon">🎥</span>
+                    <Video className="sidebar-icon" size={20} />
                     Videos
                 </NavLink>
 
                 <NavLink to="/admin/photos" className="sidebar-link">
-                    <span className="sidebar-icon">📷</span>
+                    <Image className="sidebar-icon" size={20} />
                     Photos
                 </NavLink>
 
                 <NavLink to="/admin/audio" className="sidebar-link">
-                    <span className="sidebar-icon">🎵</span>
+                    <Mic className="sidebar-icon" size={20} />
                     Audio
                 </NavLink>
             </Nav>
 
             <div className="sidebar-footer">
                 <button className="btn btn-outline-gold w-100 d-flex align-items-center justify-content-center gap-2" onClick={handleLogout}>
-                    <span className="sidebar-icon">🚪</span>
+                    <LogOut size={20} />
                     Logout
                 </button>
             </div>

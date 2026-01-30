@@ -1,57 +1,143 @@
 .admin-dashboard {
     display: flex;
     min-height: 100vh;
-    background-color: #1a1a1a;
+    background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
 }
 
 .admin-content {
     flex: 1;
     margin-left: 250px;
-    padding: 2rem;
+    padding: 2.5rem;
     transition: margin-left 0.3s ease;
 }
 
 .stat-card {
-    background-color: #2a2a2a !important;
-    border: 1px solid #444 !important;
-    border-radius: 10px;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    background: linear-gradient(145deg, #1e1e1e 0%, #2a2a2a 100%) !important;
+    border: 1px solid #333 !important;
+    border-radius: 16px;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     height: 100%;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 .stat-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 16px rgba(212, 175, 55, 0.2);
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 12px 24px rgba(212, 175, 55, 0.25),
+        0 0 20px rgba(212, 175, 55, 0.1);
     border-color: #d4af37 !important;
 }
 
 .stat-card .card-body {
     text-align: center;
-    padding: 2rem;
+    padding: 2.5rem 1.5rem;
 }
 
 .stat-icon {
     font-size: 3rem;
-    margin-bottom: 1rem;
+    margin-bottom: 1.5rem;
+    color: #d4af37;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s ease;
+}
+
+.stat-card:hover .stat-icon {
+    transform: scale(1.1);
 }
 
 .stat-number {
-    font-size: 2.5rem;
+    font-size: 2.75rem;
     font-weight: 700;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.75rem;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 .stat-label {
-    color: #999;
-    font-size: 0.9rem;
+    color: #aaa;
+    font-size: 0.95rem;
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 1.5px;
     margin-bottom: 0;
+    font-weight: 500;
 }
 
 @media (max-width: 768px) {
     .admin-content {
         margin-left: 0;
-        padding: 1rem;
+        padding: 1.5rem;
     }
+
+    .stat-card .card-body {
+        padding: 2rem 1rem;
+    }
+
+    .stat-number {
+        font-size: 2.25rem;
+    }
+}
+
+/* Admin Page Headers - Shared Styles */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    /* Separator line */
+}
+
+.page-header-content {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.page-title {
+    font-size: 2rem;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 0;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.page-subtitle {
+    color: #888;
+    font-size: 0.95rem;
+    margin-bottom: 0;
+}
+
+.total-badge {
+    background: #6f42c1;
+    color: #fff;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    box-shadow: 0 4px 10px rgba(111, 66, 193, 0.3);
+    height: fit-content;
+}
+
+/* Modal Dark Theme Overrides */
+.modal-content.bg-dark {
+    background-color: #1a1a1a !important;
+    border: 1px solid #333;
+    color: #fff;
+}
+
+.modal-header {
+    border-bottom: 1px solid #333;
+}
+
+.modal-footer {
+    border-top: 1px solid #333;
+}
+
+.btn-close-white {
+    filter: invert(1) grayscale(100%) brightness(200%);
 }

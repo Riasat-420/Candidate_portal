@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Container, Row, Col, Card } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
+import { Users, CheckCircle, Clock, UserCheck, FileText, TrendingUp } from 'lucide-react';
 import AdminSidebar from '../../components/admin/AdminSidebar';
 import api from '../../services/api';
 import './AdminDashboard.css';
@@ -65,7 +66,9 @@ const AdminDashboard = () => {
                             <Col md={6} lg={4} className="mb-4">
                                 <Card className="stat-card">
                                     <Card.Body>
-                                        <div className="stat-icon">👥</div>
+                                        <div className="stat-icon">
+                                            <Users size={48} strokeWidth={1.5} />
+                                        </div>
                                         <h3 className="stat-number gold-text">{stats.totalCandidates}</h3>
                                         <p className="stat-label">Total Candidates</p>
                                     </Card.Body>
@@ -75,7 +78,9 @@ const AdminDashboard = () => {
                             <Col md={6} lg={4} className="mb-4">
                                 <Card className="stat-card">
                                     <Card.Body>
-                                        <div className="stat-icon">✅</div>
+                                        <div className="stat-icon">
+                                            <CheckCircle size={48} strokeWidth={1.5} />
+                                        </div>
                                         <h3 className="stat-number text-success">{stats.approvedUsers}</h3>
                                         <p className="stat-label">Approved Candidates</p>
                                     </Card.Body>
@@ -85,7 +90,9 @@ const AdminDashboard = () => {
                             <Col md={6} lg={4} className="mb-4">
                                 <Card className="stat-card">
                                     <Card.Body>
-                                        <div className="stat-icon">⏳</div>
+                                        <div className="stat-icon">
+                                            <Clock size={48} strokeWidth={1.5} />
+                                        </div>
                                         <h3 className="stat-number text-warning">{stats.pendingApprovals}</h3>
                                         <p className="stat-label">Pending Reviews</p>
                                     </Card.Body>
@@ -95,7 +102,9 @@ const AdminDashboard = () => {
                             <Col md={6} lg={4} className="mb-4">
                                 <Card className="stat-card">
                                     <Card.Body>
-                                        <div className="stat-icon">✓</div>
+                                        <div className="stat-icon">
+                                            <UserCheck size={48} strokeWidth={1.5} />
+                                        </div>
                                         <h3 className="stat-number" style={{ color: '#4caf50' }}>{stats.completedOnboarding}</h3>
                                         <p className="stat-label">Completed Onboarding</p>
                                     </Card.Body>
@@ -105,7 +114,9 @@ const AdminDashboard = () => {
                             <Col md={6} lg={4} className="mb-4">
                                 <Card className="stat-card">
                                     <Card.Body>
-                                        <div className="stat-icon">📝</div>
+                                        <div className="stat-icon">
+                                            <FileText size={48} strokeWidth={1.5} />
+                                        </div>
                                         <h3 className="stat-number" style={{ color: '#2196f3' }}>{stats.submittedQuestionnaires}</h3>
                                         <p className="stat-label">Questionnaires</p>
                                     </Card.Body>
@@ -115,7 +126,9 @@ const AdminDashboard = () => {
                             <Col md={6} lg={4} className="mb-4">
                                 <Card className="stat-card">
                                     <Card.Body>
-                                        <div className="stat-icon">🆕</div>
+                                        <div className="stat-icon">
+                                            <TrendingUp size={48} strokeWidth={1.5} />
+                                        </div>
                                         <h3 className="stat-number gold-text">{stats.recentCandidates}</h3>
                                         <p className="stat-label">Recent (7d)</p>
                                     </Card.Body>

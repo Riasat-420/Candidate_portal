@@ -220,22 +220,22 @@ const getUserOnboardingData = async (req, res) => {
   try {
     // Get authenticated user ID - ignore URL parameter completely
     const userId = req.user.id;
-    
+
     console.log('Getting onboarding data for authenticated user:', userId);
-    
+
     // Find the user data
     const userData = await User.findOne({
       where: { id: userId },
       attributes: ['id', 'firstName', 'lastName', 'email', 'professionalSummary', 'aiGeneratedQuestions']
     });
-    
+
     if (!userData) {
       return res.status(404).json({
         error: 'User not found',
         message: 'The authenticated user could not be found in the database'
       });
     }
-    
+
     // Parse the AI generated questions if they exist
     let aiGeneratedQuestions = [];
     if (userData.aiGeneratedQuestions) {
@@ -258,13 +258,13 @@ const getUserOnboardingData = async (req, res) => {
         ];
       }
     }
-    
+
     // Get user uploads
     const uploads = await userData.getUploads();
     const photoUpload = uploads.find(upload => upload.type === 'photo');
     const audioUpload = uploads.find(upload => upload.type === 'audio');
     const videoUpload = uploads.find(upload => upload.type === 'video');
-    
+
     // Return user data with simplified structure
     res.json({
       id: userData.id,
@@ -291,14 +291,14 @@ const updateProfessionalSummary = async (req, res) => {
   try {
     const { professionalSummary } = req.body;
     const userId = req.user.id;
-    
+
     if (!professionalSummary || professionalSummary.trim() === '') {
       return res.status(400).json({
         error: 'Invalid input',
         message: 'Professional summary is required'
       });
     }
-    
+
     // Generate questions based on the summary
     // In a real implementation, this would call an AI service
     const questions = [
@@ -308,7 +308,7 @@ const updateProfessionalSummary = async (req, res) => {
       `What motivated you to pursue a career in this field?`,
       `Where do you see yourself professionally in the next 3-5 years?`
     ];
-    
+
     // Update user with summary and questions
     await User.update(
       {
@@ -317,7 +317,7 @@ const updateProfessionalSummary = async (req, res) => {
       },
       { where: { id: userId } }
     );
-    
+
     res.status(200).json({
       message: 'Professional summary updated successfully',
       questions,
@@ -340,25 +340,25 @@ const updateProfile = async (req, res) => {
   try {
     const userId = req.user.id;
     const { firstName, lastName, phone, email } = req.body;
-    
+
     // Build update object with only provided fields
     const updateData = {};
     if (firstName) updateData.firstName = firstName;
     if (lastName) updateData.lastName = lastName;
     if (phone) updateData.phone = phone;
     if (email) updateData.email = email;
-    
+
     // Update user
     await User.update(
       updateData,
       { where: { id: userId } }
     );
-    
+
     // Get updated user
     const updatedUser = await User.findByPk(userId, {
       attributes: { exclude: ['password'] }
     });
-    
+
     res.status(200).json({
       message: 'Profile updated successfully',
       user: updatedUser
@@ -380,7 +380,7 @@ const updateUserOnboardingData = async (req, res) => {
   try {
     const { userId } = req.params;
     const requestingUserId = req.user.id;
-    
+
     // Security check - users can only update their own data unless they are admins
     if (userId !== requestingUserId) {
       return res.status(403).json({
@@ -388,12 +388,12 @@ const updateUserOnboardingData = async (req, res) => {
         message: 'You can only update your own onboarding data'
       });
     }
-    
+
     console.log(`Updating onboarding data for user ${userId}:`, req.body);
-    
+
     // Build update object from the request body
     const updateData = {};
-    
+
     // Handle possible fields that might be sent
     if (req.body.videoPresentationUrl) {
       updateData.videoPresentationUrl = req.body.videoPresentationUrl;
@@ -404,18 +404,18 @@ const updateUserOnboardingData = async (req, res) => {
     if (req.body.professionalSummary) {
       updateData.professionalSummary = req.body.professionalSummary;
     }
-    
+
     // Update the user in the database
     await User.update(
       updateData,
       { where: { id: userId } }
     );
-    
+
     // Get updated user data
     const updatedUser = await User.findByPk(userId, {
       attributes: { exclude: ['password'] }
     });
-    
+
     res.status(200).json({
       success: true,
       message: 'Onboarding data updated successfully',
@@ -428,6 +428,102 @@ const updateUserOnboardingData = async (req, res) => {
       message: 'An error occurred while updating onboarding data'
     });
   }
+  // Find user
+  const user = await User.findOne({ where: { email } });
+  if (!user) {
+    // Return success even if user not found to prevent enumeration
+    return res.status(200).json({
+      message: 'If values match an existing account, a password reset link has been sent.'
+    });
+  }
+
+  // Generate reset token (1 hour expiration)
+  // We strictly use a different secret or specific payload to distinguish from auth tokens if needed,
+  // but here we'll use the main secret with a specific purpose claim.
+  const resetToken = jwt.sign(
+    { id: user.id, purpose: 'password_reset' },
+    process.env.JWT_SECRET || 'your_jwt_secret_key',
+    { expiresIn: '1h' }
+  );
+
+  // In a real app, send email here.
+  // For this environment, we return the link as a mock.
+  const resetLink = `http://localhost:5173/reset-password?token=${resetToken}`;
+
+  console.log('------------------------------------------------');
+  console.log('MOCK EMAIL SERVICE - PASSWORD RESET');
+  console.log(`To: ${email}`);
+  console.log(`Link: ${resetLink}`);
+  console.log('------------------------------------------------');
+
+  res.status(200).json({
+    message: 'Password reset link generated (check server console)',
+    // We include the link in response ONLY for dev/testing convenience since email isn't real
+    mockLink: resetLink
+  });
+} catch (error) {
+  console.error('Forgot password error:', error);
+  res.status(500).json({
+    error: 'Failed to process request',
+    message: 'An error occurred while processing your request'
+  });
+}
+  };
+
+/**
+ * Reset password
+ * @route POST /api/auth/reset-password
+ */
+const resetPassword = async (req, res) => {
+  try {
+    const { token, newPassword } = req.body;
+
+    if (!token || !newPassword) {
+      return res.status(400).json({
+        error: 'Invalid request',
+        message: 'Token and new password are required'
+      });
+    }
+
+    // Verify token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your_jwt_secret_key');
+
+    if (decoded.purpose !== 'password_reset') {
+      return res.status(400).json({
+        error: 'Invalid token',
+        message: 'Invalid token type'
+      });
+    }
+
+    // Find user
+    const user = await User.findByPk(decoded.id);
+    if (!user) {
+      return res.status(404).json({
+        error: 'User not found',
+        message: 'User associated with this token does not exist'
+      });
+    }
+
+    // Update password (hooks will hash it)
+    user.password = newPassword;
+    await user.save();
+
+    res.status(200).json({
+      message: 'Password has been reset successfully. You can now login with your new password.'
+    });
+  } catch (error) {
+    console.error('Reset password error:', error);
+    if (error.name === 'TokenExpiredError') {
+      return res.status(400).json({
+        error: 'Token expired',
+        message: 'Password reset link has expired. Please request a new one.'
+      });
+    }
+    res.status(500).json({
+      error: 'Failed to reset password',
+      message: 'An error occurred while resetting your password'
+    });
+  }
 };
 
 module.exports = {
@@ -438,5 +534,7 @@ module.exports = {
   getUserOnboardingData,
   updateProfessionalSummary,
   updateProfile,
-  updateUserOnboardingData
+  updateUserOnboardingData,
+  forgotPassword,
+  resetPassword
 };

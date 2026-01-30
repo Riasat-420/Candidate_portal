@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react';
+import { useState, useEffect, type FormEvent } from 'react';
 import { Form, Button, Alert } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
@@ -12,6 +12,32 @@ const AdminLogin = () => {
     const [loading, setLoading] = useState(false);
     const [validationErrors, setValidationErrors] = useState<{ email?: string; password?: string }>({});
     const navigate = useNavigate();
+
+    useEffect(() => {
+        console.log('🔐 AdminLogin component mounted');
+        console.log('Current URL:', window.location.href);
+        console.log('Current path:', window.location.pathname);
+
+        // Listen for navigation changes
+        const handleBeforeUnload = () => {
+            console.log('⚠️ Page is being unloaded/redirected');
+        };
+
+        window.addEventListener('beforeunload', handleBeforeUnload);
+
+        // Check if we're being redirected
+        const checkRedirect = setInterval(() => {
+            if (window.location.pathname !== '/admin/login') {
+                console.log('🚨 REDIRECT DETECTED! New path:', window.location.pathname);
+                clearInterval(checkRedirect);
+            }
+        }, 100);
+
+        return () => {
+            window.removeEventListener('beforeunload', handleBeforeUnload);
+            clearInterval(checkRedirect);
+        };
+    }, []);
 
     const validateForm = () => {
         const errors: { email?: string; password?: string } = {};
@@ -39,32 +65,45 @@ const AdminLogin = () => {
         setError('');
         setValidationErrors({});
 
+        console.log('🔐 Admin login attempt:', { email, password: '***' });
+
         // Validate form first
         if (!validateForm()) {
+            console.log('❌ Form validation failed');
             return;
         }
 
         setLoading(true);
 
         try {
+            console.log('📤 Sending login request to /admin/login');
             const response = await api.post('/admin/login', { email, password });
+            console.log('✅ Login response received:', response.data);
+
             const { token, user } = response.data;
 
             // Verify it's an admin user
             if (user.role !== 'admin') {
+                console.log('❌ User is not admin:', user.role);
                 setError('Access denied. This account does not have admin privileges.');
                 setLoading(false);
                 return;
             }
 
+            console.log('✅ Admin user verified, storing token');
             // Store admin token and info
             localStorage.setItem('adminToken', token);
             localStorage.setItem('adminUser', JSON.stringify(user));
 
+            console.log('✅ Redirecting to /admin/dashboard');
             // Redirect to admin dashboard
             navigate('/admin/dashboard');
         } catch (err: any) {
             setLoading(false);
+
+            console.error('❌ Login error:', err);
+            console.error('Error response:', err.response?.data);
+            console.error('Error status:', err.response?.status);
 
             // Handle different error responses
             if (err.response?.status === 401) {

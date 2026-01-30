@@ -102,6 +102,32 @@ router.put('/candidates/:id/reject', authenticateAdmin, (req, res) => {
   }
 });
 
+/**
+ * @route DELETE /api/admin/candidates/:id
+ * @desc Delete a candidate and all associated data
+ * @access Admin only
+ */
+router.delete('/candidates/:id', authenticateAdmin, (req, res) => {
+  if (typeof adminController.deleteCandidate === 'function') {
+    adminController.deleteCandidate(req, res);
+  } else {
+    res.status(500).json({ error: 'Delete candidate function not available' });
+  }
+});
+
+/**
+ * @route DELETE /api/admin/uploads/:id
+ * @desc Delete an upload (photo, video, audio)
+ * @access Admin only
+ */
+router.delete('/uploads/:id', authenticateAdmin, (req, res) => {
+  if (typeof adminController.deleteUpload === 'function') {
+    adminController.deleteUpload(req, res);
+  } else {
+    res.status(500).json({ error: 'Delete upload function not available' });
+  }
+});
+
 // Upload Actions (Photos, Audio, Video)
 router.put('/uploads/:id/approve', authenticateAdmin, (req, res) => {
   if (typeof adminController.approveUpload === 'function') {

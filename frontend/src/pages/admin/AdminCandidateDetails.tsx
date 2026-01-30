@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
-import { Container, Row, Col, Card, Button, Badge } from 'react-bootstrap';
+import { Container, Button } from 'react-bootstrap';
 import { useParams, useNavigate } from 'react-router-dom';
+import { Mail, Phone, MapPin, Calendar, Image, Mic, Video } from 'lucide-react';
 import AdminSidebar from '../../components/admin/AdminSidebar';
 import ConfirmationModal from '../../components/admin/ConfirmationModal';
+import QuestionnaireView from '../../components/admin/QuestionnaireView';
 import api from '../../services/api';
 import '../admin/AdminDashboard.css';
-import './AdminMedia.css';
+import './AdminCandidateDetails.css';
 
 interface User {
     id: string;
@@ -22,12 +24,15 @@ interface User {
     questionnaire?: any;
 }
 
+type TabType = 'profile' | 'media' | 'questionnaire';
+
 const AdminCandidateDetails = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const [candidate, setCandidate] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
     const [processing, setProcessing] = useState(false);
+    const [activeTab, setActiveTab] = useState<TabType>('profile');
 
     // Modal States
     const [showApproveModal, setShowApproveModal] = useState(false);
@@ -89,14 +94,19 @@ const AdminCandidateDetails = () => {
         }
     };
 
-    const getApprovalBadge = (status: string) => {
-        const badges: { [key: string]: { variant: string; text: string } } = {
-            'pending': { variant: 'warning', text: 'Pending' },
-            'approved': { variant: 'success', text: 'Approved' },
-            'rejected': { variant: 'danger', text: 'Rejected' }
-        };
-        const badge = badges[status] || { variant: 'secondary', text: 'Unknown' };
-        return <Badge bg={badge.variant}>{badge.text}</Badge>;
+    const calculateProgress = () => {
+        if (!candidate) return 0;
+        const steps = ['welcome', 'photo', 'audio', 'video', 'questionnaire', 'completion'];
+        const currentIndex = steps.indexOf(candidate.onboardingStep);
+        return Math.round(((currentIndex + 1) / steps.length) * 100);
+    };
+
+    const getStepStatus = (step: string) => {
+        if (!candidate) return false;
+        const steps = ['welcome', 'photo', 'audio', 'video', 'questionnaire', 'completion'];
+        const currentIndex = steps.indexOf(candidate.onboardingStep);
+        const stepIndex = steps.indexOf(step);
+        return stepIndex <= currentIndex;
     };
 
     const getMediaUrl = (path: string) => {
@@ -111,156 +121,191 @@ const AdminCandidateDetails = () => {
     const photo = candidate.uploads?.find(u => u.type === 'photo');
     const audio = candidate.uploads?.find(u => u.type === 'audio');
     const video = candidate.uploads?.find(u => u.type === 'video');
+    const progress = calculateProgress();
 
     return (
         <div className="admin-dashboard">
             <AdminSidebar />
             <div className="admin-content">
-                <Container fluid>
+                <Container fluid className="candidate-details-container">
+                    {/* Back Button */}
                     <div className="mb-4">
                         <Button className="btn-outline-gold" size="sm" onClick={() => navigate('/admin/candidates')}>
-                            ← Back to List
+                            ← Back to Candidates
                         </Button>
                     </div>
 
-                    <div className="d-flex justify-content-between align-items-center mb-4">
-                        <h2 className="text-white">
-                            {candidate.firstName} {candidate.lastName}
-                            <span className="ms-3 h5">{getApprovalBadge(candidate.approvalStatus || 'pending')}</span>
-                            {candidate.approvalStatus === 'rejected' && (
-                                <div className="text-danger mt-2 h6">Reason: {candidate.rejectionReason}</div>
-                            )}
-                        </h2>
-                        <div className="d-flex gap-2">
-                            {candidate.approvalStatus !== 'approved' && (
-                                <Button
-                                    className="btn-gold"
-                                    onClick={() => setShowApproveModal(true)}
-                                    disabled={processing}
-                                >
-                                    ✓ Approve Candidate
-                                </Button>
-                            )}
-                            {candidate.approvalStatus !== 'rejected' && (
-                                <Button
-                                    variant="danger"
-                                    onClick={() => setShowRejectModal(true)}
-                                    disabled={processing}
-                                >
-                                    ✗ Reject
-                                </Button>
-                            )}
+                    {/* Header Section */}
+                    <div className="candidate-header">
+                        {/* Name and Actions */}
+                        <div className="d-flex justify-content-between align-items-start mb-4">
+                            <div className="candidate-name-section">
+                                <h1 className="candidate-name">{candidate.firstName} {candidate.lastName}</h1>
+                                <p className="candidate-registered">
+                                    Registered On {new Date(candidate.createdAt).toLocaleDateString('en-US', {
+                                        year: 'numeric',
+                                        month: 'long',
+                                        day: 'numeric'
+                                    })}
+                                </p>
+                            </div>
+                            <div className="d-flex gap-2">
+                                {candidate.approvalStatus !== 'approved' && (
+                                    <Button
+                                        className="btn-gold"
+                                        onClick={() => setShowApproveModal(true)}
+                                        disabled={processing}
+                                    >
+                                        ✓ Approve
+                                    </Button>
+                                )}
+                                {candidate.approvalStatus !== 'rejected' && (
+                                    <Button
+                                        variant="danger"
+                                        onClick={() => setShowRejectModal(true)}
+                                        disabled={processing}
+                                    >
+                                        ✗ Reject
+                                    </Button>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Progress Section Removed as per request */}
+
+                        {/* Tab Navigation */}
+                        <div className="tab-navigation">
+                            <button
+                                className={`tab-button ${activeTab === 'profile' ? 'active' : ''}`}
+                                onClick={() => setActiveTab('profile')}
+                            >
+                                Profile
+                            </button>
+                            <button
+                                className={`tab-button ${activeTab === 'media' ? 'active' : ''}`}
+                                onClick={() => setActiveTab('media')}
+                            >
+                                Media
+                            </button>
+                            <button
+                                className={`tab-button ${activeTab === 'questionnaire' ? 'active' : ''}`}
+                                onClick={() => setActiveTab('questionnaire')}
+                            >
+                                Questionnaire
+                            </button>
                         </div>
                     </div>
 
-                    <Row>
-                        {/* Profile & Contact */}
-                        <Col md={4} className="mb-4">
-                            <Card bg="dark" text="white" className="h-100 border-secondary">
-                                <Card.Header className="border-secondary">Candidate Profile</Card.Header>
-                                <Card.Body>
-                                    <div className="text-center mb-3">
+                    {/* Tab Content */}
+                    <div className="tab-content">
+                        {/* Profile Tab */}
+                        {activeTab === 'profile' && (
+                            <div className="profile-tab">
+                                <div className="profile-avatar-section">
+                                    <div className="profile-avatar">
                                         {photo ? (
-                                            <div style={{ width: '150px', height: '150px', margin: '0 auto', overflow: 'hidden', borderRadius: '50%', border: '3px solid #d4af37' }}>
-                                                <img
-                                                    src={getMediaUrl(photo.url)}
-                                                    alt="Profile"
-                                                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                                                />
-                                            </div>
+                                            <img src={getMediaUrl(photo.url)} alt="Profile" />
                                         ) : (
-                                            <div className="d-flex align-items-center justify-content-center bg-secondary rounded-circle text-white mx-auto" style={{ width: '150px', height: '150px' }}>
-                                                <span className="h1">{candidate.firstName[0]}{candidate.lastName[0]}</span>
-                                            </div>
+                                            <span>{candidate.firstName[0]}{candidate.lastName[0]}</span>
                                         )}
                                     </div>
-                                    <h4 className="text-center mb-1">{candidate.firstName} {candidate.lastName}</h4>
-                                    <p className="text-center text-muted mb-4">{candidate.email}</p>
+                                    <h2 className="profile-name">{candidate.firstName} {candidate.lastName}</h2>
+                                </div>
 
-                                    <div className="border-top border-secondary pt-3">
-                                        <p><strong>Phone:</strong> {candidate.phone || 'N/A'}</p>
-                                        <p><strong>Joined:</strong> {new Date(candidate.createdAt).toLocaleDateString()}</p>
-                                        <p><strong>Progress:</strong> {candidate.onboardingStep}</p>
-                                    </div>
-                                </Card.Body>
-                            </Card>
-                        </Col>
-
-                        {/* Media Submissions */}
-                        <Col md={8} className="mb-4">
-                            <Card bg="dark" text="white" className="h-100 border-secondary">
-                                <Card.Header className="border-secondary">Media Submissions</Card.Header>
-                                <Card.Body>
-                                    <Row>
-                                        <Col md={6} className="mb-3">
-                                            <h5>🎤 Audio Introduction</h5>
-                                            {audio ? (
-                                                <div className="p-3 bg-black rounded border border-secondary">
-                                                    <audio controls src={getMediaUrl(audio.url)} className="w-100" />
-                                                </div>
-                                            ) : (
-                                                <div className="text-muted p-3 border border-secondary rounded text-center">Not uploaded yet</div>
-                                            )}
-                                        </Col>
-                                        <Col md={6} className="mb-3">
-                                            <h5>🎥 Video Presentation</h5>
-                                            {video ? (
-                                                <div className="p-2 bg-black rounded border border-secondary">
-                                                    <video controls src={getMediaUrl(video.url)} className="w-100 rounded" style={{ maxHeight: '250px' }} />
-                                                </div>
-                                            ) : (
-                                                <div className="text-muted p-3 border border-secondary rounded text-center">Not uploaded yet</div>
-                                            )}
-                                        </Col>
-                                    </Row>
-                                </Card.Body>
-                            </Card>
-                        </Col>
-
-                        {/* Questionnaire */}
-                        <Col md={12}>
-                            <Card bg="dark" text="white" className="border-secondary">
-                                <Card.Header className="border-secondary">Questionnaire Responses</Card.Header>
-                                <Card.Body>
-                                    {candidate.questionnaire ? (
-                                        <div>
-                                            <Row>
-                                                <Col md={6}>
-                                                    <h5 className="text-gold mt-3 text-uppercase border-bottom border-dark pb-2">Work Experience</h5>
-                                                    <p><strong>Occupation:</strong> {candidate.questionnaire.workExperience?.occupation}</p>
-                                                    <p><strong>Years Experience:</strong> {candidate.questionnaire.workExperience?.yearsExperience}</p>
-                                                    <p><strong>Skills:</strong> {candidate.questionnaire.workExperience?.skills}</p>
-                                                    <p><strong>Education:</strong> {candidate.questionnaire.workExperience?.education}</p>
-                                                </Col>
-                                                <Col md={6}>
-                                                    <h5 className="text-gold mt-3 text-uppercase border-bottom border-dark pb-2">About</h5>
-                                                    <p><strong>Bio:</strong> {candidate.questionnaire.workExperience?.bio}</p>
-                                                    <p><strong>Career Goals:</strong> {candidate.questionnaire.additionalInfo?.careerGoals}</p>
-                                                    <p><strong>Availability:</strong> {candidate.questionnaire.additionalInfo?.availability}</p>
-                                                </Col>
-                                            </Row>
-
-                                            <div className="mt-4">
-                                                <h5 className="text-gold mt-3 text-uppercase border-bottom border-dark pb-2">Social & Links</h5>
-                                                <Row>
-                                                    <Col md={6}>
-                                                        <p><strong>Social Media:</strong> {candidate.questionnaire.additionalInfo?.socialMedia || 'Not provided'}</p>
-                                                    </Col>
-                                                    <Col md={6}>
-                                                        <p><strong>Website:</strong> {candidate.questionnaire.additionalInfo?.website ? (
-                                                            <a href={candidate.questionnaire.additionalInfo?.website} target="_blank" rel="noreferrer" className="text-info">{candidate.questionnaire.additionalInfo?.website}</a>
-                                                        ) : 'Not provided'}</p>
-                                                    </Col>
-                                                </Row>
+                                <div className="basic-info-section">
+                                    <h3 className="section-title">Basic Information</h3>
+                                    <div className="info-grid">
+                                        <div className="info-item">
+                                            <Mail className="info-icon" size={24} />
+                                            <div className="info-content">
+                                                <div className="info-label">Email Address</div>
+                                                <div className="info-value">{candidate.email || <span className="not-provided">Not provided</span>}</div>
                                             </div>
                                         </div>
-                                    ) : (
-                                        <div className="text-muted text-center p-4">Questionnaire not completed yet</div>
-                                    )}
-                                </Card.Body>
-                            </Card>
-                        </Col>
-                    </Row>
+                                        <div className="info-item">
+                                            <Phone className="info-icon" size={24} />
+                                            <div className="info-content">
+                                                <div className="info-label">Phone Number</div>
+                                                <div className="info-value">{candidate.phone || <span className="not-provided">Not provided</span>}</div>
+                                            </div>
+                                        </div>
+                                        <div className="info-item">
+                                            <MapPin className="info-icon" size={24} />
+                                            <div className="info-content">
+                                                <div className="info-label">Location</div>
+                                                <div className="info-value">
+                                                    {candidate.questionnaire?.city || <span className="not-provided">Not provided</span>}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="info-item">
+                                            <Calendar className="info-icon" size={24} />
+                                            <div className="info-content">
+                                                <div className="info-label">Date of Birth</div>
+                                                <div className="info-value">
+                                                    {candidate.questionnaire?.dateOfBirth || <span className="not-provided">Not provided</span>}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Media Tab */}
+                        {activeTab === 'media' && (
+                            <div className="media-grid">
+                                {/* Profile Photo */}
+                                <div className="media-card">
+                                    <div className="media-card-header">
+                                        <Image className="media-card-icon" size={24} />
+                                        <h3 className="media-card-title">Profile Photo</h3>
+                                    </div>
+                                    <div className="media-preview">
+                                        {photo ? (
+                                            <img src={getMediaUrl(photo.url)} alt="Profile" />
+                                        ) : (
+                                            <div className="empty-media">No photo uploaded</div>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* Audio Recording */}
+                                <div className="media-card">
+                                    <div className="media-card-header">
+                                        <Mic className="media-card-icon" size={24} />
+                                        <h3 className="media-card-title">Audio Recording</h3>
+                                    </div>
+                                    <div className="media-preview">
+                                        {audio ? (
+                                            <audio controls src={getMediaUrl(audio.url)} />
+                                        ) : (
+                                            <div className="empty-media">No audio recording uploaded</div>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* Video Interview */}
+                                <div className="media-card">
+                                    <div className="media-card-header">
+                                        <Video className="media-card-icon" size={24} />
+                                        <h3 className="media-card-title">Video Interview</h3>
+                                    </div>
+                                    <div className="media-preview">
+                                        {video ? (
+                                            <video controls src={getMediaUrl(video.url)} />
+                                        ) : (
+                                            <div className="empty-media">No video interview uploaded</div>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {activeTab === 'questionnaire' && (
+                            <QuestionnaireView data={candidate.questionnaire} />
+                        )}
+                    </div>
                 </Container>
             </div>
 

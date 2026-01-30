@@ -1,0 +1,92 @@
+/* Global Button Overrides for Dark Theme */
+
+/* Shared Button Styles */
+.btn-outline-danger,
+.btn-danger,
+.btn-outline-gold,
+.btn-gold,
+.action-btn {
+    border-radius: 4px !important;
+    /* Little curved corner as requested */
+    padding: 8px 16px !important;
+    /* Consistent padding for rectangular shape */
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s ease-in-out;
+    text-transform: capitalize;
+    /* Unify text style */
+}
+
+/* Danger Buttons (Delete/Reject) */
+.btn-outline-danger {
+    color: #ff4d4d;
+    border: 1px solid #ff4d4d;
+    background: transparent;
+}
+
+.btn-outline-danger:hover,
+.btn-outline-danger:active,
+.btn-outline-danger:focus {
+    color: #fff;
+    background-color: #ff4d4d;
+    border-color: #ff4d4d;
+    box-shadow: 0 4px 12px rgba(255, 77, 77, 0.2) !important;
+}
+
+.btn-danger {
+    background-color: #ff4d4d;
+    border: 1px solid #ff4d4d;
+    color: #fff;
+}
+
+.btn-danger:hover {
+    background-color: #e60000;
+    border-color: #e60000;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(255, 77, 77, 0.3) !important;
+}
+
+/* Gold Buttons */
+.btn-outline-gold {
+    color: #d4af37;
+    border: 1px solid rgba(212, 175, 55, 0.6);
+    background: transparent;
+}
+
+.btn-outline-gold:hover,
+.btn-outline-gold:active,
+.btn-outline-gold:focus {
+    color: #fff;
+    background: rgba(212, 175, 55, 0.15);
+    border-color: #d4af37;
+    box-shadow: 0 4px 12px rgba(212, 175, 55, 0.2) !important;
+}
+
+.btn-gold {
+    background: linear-gradient(135deg, #c9a227 0%, #d4af37 100%);
+    border: none;
+    color: #000;
+    font-weight: 600;
+}
+
+.btn-gold:hover {
+    background: linear-gradient(135deg, #d4af37 0%, #e5c156 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3) !important;
+}
+
+/* Small Button Specifics */
+.btn-sm {
+    padding: 6px 12px !important;
+    font-size: 0.85rem;
+}
+
+/* Questionnaire Action Buttons Override */
+.action-btn {
+    border: 1px solid transparent;
+    /* Placeholder to match structure */
+}

@@ -15,6 +15,7 @@ const questionnaireRoutes = require('./routes/questionnaire');
 const onboardingRoutes = require('./routes/onboarding');
 const minimalUploadRoutes = require('./routes/minimal-upload');
 const bypassRoutes = require('./routes/bypass-routes');
+const videoRoutes = require('./routes/video'); // NEW
 
 // Database setup
 const db = require('./models');
@@ -27,6 +28,10 @@ app.use(morgan('dev'));
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Initialize passport BEFORE loading auth middleware
+app.use(passport.initialize());
+require('./middleware/auth'); // This loads and configures the JWT strategy
 
 // Serve static files from uploads directory
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
@@ -41,10 +46,12 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/uploads', uploadRoutes);
 app.use('/api/questions', questionRoutes);
+app.use('/api/questionnaire', require('./routes/cv-parser')); // CV parsing
 app.use('/api/questionnaire', questionnaireRoutes);
 app.use('/api/onboarding', onboardingRoutes);
 app.use('/api/minimal-upload', minimalUploadRoutes);
 app.use('/api/bypass', bypassRoutes);
+app.use('/api/video', videoRoutes); // NEW: Video interview questions
 
 // Root route
 app.get('/', (req, res) => {

@@ -1,0 +1,216 @@
+/* Admin Questionnaires Table Design */
+.admin-questionnaires-container {
+    padding: 0;
+}
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.page-title {
+    font-size: 2rem;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 5px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.page-subtitle {
+    color: #888;
+    font-size: 0.95rem;
+}
+
+.total-badge {
+    background: #6f42c1;
+    color: #fff;
+    padding: 5px 12px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+/* Table Card */
+.table-card {
+    background: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.custom-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.custom-table th {
+    background: #252525;
+    color: #888;
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 15px 20px;
+    text-align: left;
+    border-bottom: 1px solid #333;
+}
+
+.custom-table td {
+    padding: 20px;
+    border-bottom: 1px solid #333;
+    vertical-align: middle;
+    color: #fff;
+    font-size: 0.95rem;
+}
+
+.custom-table tr:last-child td {
+    border-bottom: none;
+}
+
+.custom-table tr:hover td {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+/* Column specific styles */
+.col-title {
+    font-weight: 600;
+    color: #fff;
+    min-width: 200px;
+}
+
+.col-candidate {
+    color: #ccc;
+}
+
+.col-status {
+    width: 120px;
+}
+
+.col-date {
+    color: #888;
+    width: 150px;
+}
+
+.col-actions {
+    width: 150px;
+    text-align: right;
+}
+
+/* Status Badges */
+.status-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.status-badge.completed,
+.status-badge.approved {
+    background: rgba(40, 167, 69, 0.2);
+    color: #28a745;
+    border: 1px solid rgba(40, 167, 69, 0.3);
+}
+
+.status-badge.pending {
+    background: rgba(255, 193, 7, 0.1);
+    color: #ffc107;
+    border: 1px solid rgba(255, 193, 7, 0.3);
+}
+
+.status-badge.rejected {
+    background: rgba(220, 53, 69, 0.2);
+    color: #dc3545;
+    border: 1px solid rgba(220, 53, 69, 0.3);
+}
+
+/* Action Buttons */
+.action-btn-group {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+}
+
+/* Inherit base styles from buttons.css but keep layout specifics */
+.action-btn {
+    /* Padding and Radius handled by buttons.css global .action-btn */
+    cursor: pointer;
+    transition: all 0.2s;
+    background: transparent;
+    border: 1px solid transparent;
+}
+
+.action-btn.view {
+    border-color: #444;
+    color: #fff;
+}
+
+.action-btn.view:hover {
+    border-color: #666;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.action-btn.delete {
+    border-color: #dc3545;
+    color: #dc3545;
+}
+
+.action-btn.delete:hover {
+    background: #dc3545;
+    color: #fff;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+    .custom-table thead {
+        display: none;
+    }
+
+    .custom-table,
+    .custom-table tbody,
+    .custom-table tr,
+    .custom-table td {
+        display: block;
+        width: 100%;
+    }
+
+    .custom-table tr {
+        margin-bottom: 20px;
+        background: #1a1a1a;
+        border: 1px solid #333;
+        border-radius: 8px;
+        padding: 15px;
+    }
+
+    .custom-table td {
+        padding: 8px 0;
+        border: none;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        text-align: right;
+    }
+
+    .custom-table td::before {
+        content: attr(data-label);
+        float: left;
+        color: #888;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        font-weight: 600;
+    }
+
+    .action-btn-group {
+        justify-content: flex-start;
+        margin-top: 10px;
+    }
+}

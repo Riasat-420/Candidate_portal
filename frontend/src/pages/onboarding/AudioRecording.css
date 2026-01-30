@@ -1,0 +1,314 @@
+/* Audio Recording Redesign CSS */
+.audio-recording-redesign {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 30px 20px;
+}
+
+.audio-recording-redesign .page-title {
+    color: #fff;
+    font-size: 2rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.audio-recording-redesign .page-subtitle {
+    color: #999;
+    text-align: center;
+    font-size: 0.95rem;
+    margin-bottom: 40px;
+}
+
+.audio-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 12px;
+    padding: 40px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    min-height: 500px;
+}
+
+/* Left Column - Recording Interface */
+.recording-interface {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.mic-button-container {
+    text-align: center;
+}
+
+.mic-button {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    background: #c9a227;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    box-shadow: 0 8px 25px rgba(201, 162, 39, 0.4);
+}
+
+.mic-button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 12px 35px rgba(201, 162, 39, 0.6);
+}
+
+.mic-button:active {
+    transform: scale(0.95);
+}
+
+.mic-icon {
+    font-size: 2.5rem;
+    line-height: 1;
+}
+
+.mic-instruction {
+    color: #999;
+    font-size: 0.95rem;
+    margin: 0;
+}
+
+/* Recording Active State */
+.recording-active {
+    text-align: center;
+}
+
+.recording-pulse {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    margin: 0 auto 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.pulse-circle {
+    position: absolute;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    background: rgba(255, 68, 68, 0.3);
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: scale(1.1);
+        opacity: 0.7;
+    }
+}
+
+.recording-text {
+    color: #ff4444;
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.recording-duration {
+    color: #fff;
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+.stop-button {
+    background: #ff4444 !important;
+    border: none !important;
+    padding: 12px 30px;
+}
+
+/* Playback Section */
+.playback-section {
+    width: 100%;
+}
+
+.audio-player-card {
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: 12px;
+    padding: 25px;
+    margin-bottom: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.audio-label {
+    color: #c9a227;
+    font-weight: 600;
+    margin-bottom: 15px;
+    font-size: 0.95rem;
+}
+
+.audio-control {
+    width: 100%;
+    margin-bottom: 15px;
+}
+
+.audio-duration {
+    color: #999;
+    font-size: 0.85rem;
+    margin: 0;
+}
+
+.audio-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* Right Column - Guidelines */
+.recording-guidelines {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.guidelines-card,
+.sample-audio-card {
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: 12px;
+    padding: 25px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.guidelines-card h4,
+.sample-audio-card h4 {
+    color: #fff;
+    font-size: 1.1rem;
+    margin-bottom: 20px;
+    font-weight: 600;
+}
+
+.guidelines-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.guidelines-list li {
+    color: #ddd;
+    font-size: 0.9rem;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: flex-start;
+    line-height: 1.6;
+}
+
+.check-icon {
+    background: #c9a227;
+    color: #000;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 12px;
+    flex-shrink: 0;
+    font-size: 0.75rem;
+    font-weight: bold;
+    border: none;
+    outline: none;
+    box-shadow: none;
+}
+
+.sample-description {
+    color: #999;
+    font-size: 0.85rem;
+    margin-bottom: 15px;
+    line-height: 1.5;
+}
+
+.sample-audio-player {
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.sample-note {
+    color: #666;
+    font-size: 0.75rem;
+    margin: 0;
+    font-style: italic;
+}
+
+/* Button Styles */
+.golden-button {
+    background: #c9a227 !important;
+    border: none !important;
+    color: #000 !important;
+    font-weight: 600;
+    padding: 15px 30px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+}
+
+.golden-button:hover {
+    background: #b89322 !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(201, 162, 39, 0.4);
+}
+
+.golden-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.dark-button {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    color: #fff !important;
+    font-weight: 500;
+    padding: 15px 30px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.dark-button:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border-color: rgba(255, 255, 255, 0.3) !important;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .audio-grid {
+        grid-template-columns: 1fr;
+        padding: 25px;
+    }
+
+    .mic-button {
+        width: 150px;
+        height: 150px;
+    }
+
+    .mic-icon {
+        font-size: 3.5rem;
+    }
+
+    .recording-pulse {
+        width: 150px;
+        height: 150px;
+    }
+
+    .pulse-circle {
+        width: 150px;
+        height: 150px;
+    }
+}

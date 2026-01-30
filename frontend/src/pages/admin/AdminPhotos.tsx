@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Container, Row, Col, Card, Badge } from 'react-bootstrap';
+import { Container, Row, Col, Card, Badge, Modal, Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
+import { Image, X, Check, Trash2, Eye } from 'lucide-react';
 import AdminSidebar from '../../components/admin/AdminSidebar';
 import api from '../../services/api';
 import '../admin/AdminDashboard.css';
@@ -20,6 +21,8 @@ interface Photo {
 const AdminPhotos = () => {
     const [photos, setPhotos] = useState<Photo[]>([]);
     const [loading, setLoading] = useState(true);
+    const [showModal, setShowModal] = useState(false);
+    const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -46,7 +49,8 @@ const AdminPhotos = () => {
         }
     };
 
-    const handleApprove = async (id: string) => {
+    const handleApprove = async (id: string, e: React.MouseEvent) => {
+        e.stopPropagation();
         if (!window.confirm('Approve this photo?')) return;
         try {
             const token = localStorage.getItem('adminToken');
@@ -54,13 +58,18 @@ const AdminPhotos = () => {
                 headers: { Authorization: `Bearer ${token}` }
             });
             fetchPhotos();
+            // Update modal if open
+            if (selectedPhoto && selectedPhoto.id === id) {
+                setSelectedPhoto({ ...selectedPhoto, status: 'approved' });
+            }
         } catch (error) {
             console.error('Failed to approve photo:', error);
             alert('Failed to approve photo');
         }
     };
 
-    const handleReject = async (id: string) => {
+    const handleReject = async (id: string, e: React.MouseEvent) => {
+        e.stopPropagation();
         const reason = prompt('Reason for rejection:');
         if (reason === null) return;
 
@@ -70,17 +79,41 @@ const AdminPhotos = () => {
                 headers: { Authorization: `Bearer ${token}` }
             });
             fetchPhotos();
+            // Update modal if open
+            if (selectedPhoto && selectedPhoto.id === id) {
+                setSelectedPhoto({ ...selectedPhoto, status: 'rejected' });
+            }
         } catch (error) {
             console.error('Failed to reject photo:', error);
             alert('Failed to reject photo');
         }
     };
 
-    const formatFileSize = (bytes: number) => {
-        if (!bytes) return 'N/A';
-        const kb = bytes / 1024;
-        const mb = kb / 1024;
-        return mb > 1 ? `${mb.toFixed(2)} MB` : `${kb.toFixed(2)} KB`;
+    const handleDelete = async (id: string, e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (!window.confirm('Are you sure you want to delete this photo? This action cannot be undone.')) return;
+        try {
+            const token = localStorage.getItem('adminToken');
+            await api.delete(`/admin/uploads/${id}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            fetchPhotos();
+            setShowModal(false);
+        } catch (error) {
+            console.error('Failed to delete photo:', error);
+            alert('Failed to delete photo');
+        }
+    };
+
+    const handleView = (photo: Photo) => {
+        setSelectedPhoto(photo);
+        setShowModal(true);
+    };
+
+    const getImageUrl = (url: string) => {
+        if (!url) return '';
+        if (url.startsWith('http')) return url;
+        return `http://localhost:5000${url}`;
     };
 
     const getStatusBadge = (status: string) => {
@@ -89,7 +122,13 @@ const AdminPhotos = () => {
             'approved': 'success',
             'rejected': 'danger'
         };
-        return <Badge bg={variants[status] || 'secondary'}>{status}</Badge>;
+        return <Badge bg={variants[status] || 'secondary'} className="status-badge">{status}</Badge>;
+    };
+
+    const getReviewStatus = (status: string) => {
+        if (status === 'approved') return <span className="text-success">Approved</span>;
+        if (status === 'rejected') return <span className="text-danger">Rejected</span>;
+        return <span className="text-warning">Needs Review</span>;
     };
 
     return (
@@ -97,36 +136,41 @@ const AdminPhotos = () => {
             <AdminSidebar />
             <div className="admin-content">
                 <Container fluid>
-                    <h2 className="mb-4 text-white">Photo Uploads</h2>
+                    {/* Standardized Header */}
+                    <div className="page-header">
+                        <div className="page-header-content">
+                            <h1 className="page-title">
+                                <Image size={32} color="#c9a227" />
+                                Photo Uploads
+                            </h1>
+                            <p className="page-subtitle">Manage and moderate candidate photo submissions</p>
+                        </div>
+                        <div className="total-badge">
+                            {photos.length} TOTAL
+                        </div>
+                    </div>
 
                     {loading ? (
-                        <div className="text-center text-white">Loading...</div>
-                    ) : photos.length === 0 ? (
-                        <div className="text-center text-muted">No photos found</div>
+                        <div className="text-center text-white py-5">
+                            <div className="spinner-border text-gold" role="status"></div>
+                        </div>
                     ) : (
-                        <Row>
-                            {photos.map((photo) => (
-                                <Col md={6} lg={4} xl={3} className="mb-4" key={photo.id}>
-                                    <div className="stat-card h-100 d-flex flex-column">
+                        <div className="media-grid">
+                            {photos.length === 0 ? (
+                                <div className="text-center text-muted col-12 py-5 border border-secondary rounded bg-dark">
+                                    No photos found
+                                </div>
+                            ) : (
+                                photos.map((photo) => (
+                                    <div key={photo.id} className="media-card">
                                         <div
-                                            style={{
-                                                height: '200px',
-                                                overflow: 'hidden',
-                                                backgroundColor: '#1a1a1a',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'center',
-                                                position: 'relative'
-                                            }}
+                                            className="media-preview-container"
+                                            onClick={() => handleView(photo)}
                                         >
                                             <img
-                                                src={photo.file_url}
+                                                src={getImageUrl(photo.file_url)}
                                                 alt={photo.candidateName}
-                                                style={{
-                                                    maxWidth: '100%',
-                                                    maxHeight: '100%',
-                                                    objectFit: 'cover'
-                                                }}
+                                                className="media-image"
                                                 onError={(e) => {
                                                     e.currentTarget.src = 'https://via.placeholder.com/300x200?text=No+Image';
                                                 }}
@@ -135,61 +179,105 @@ const AdminPhotos = () => {
                                                 {getStatusBadge(photo.status)}
                                             </div>
                                         </div>
-                                        <Card.Body className="d-flex flex-column flex-grow-1">
-                                            <h6 className="text-white mb-2">{photo.candidateName}</h6>
-                                            <small className="text-muted d-block mb-1">
-                                                Size: {formatFileSize(photo.file_size)}
-                                            </small>
-                                            <small className="text-muted d-block mb-3">
-                                                {new Date(photo.created_at).toLocaleDateString()}
-                                            </small>
+                                        <div className="media-card-body">
+                                            <div className="d-flex justify-content-between align-items-start mb-2">
+                                                <div className="media-info-col">
+                                                    <h5 className="candidate-name mb-0">{photo.candidateName}</h5>
+                                                    <div className="review-status-text">
+                                                        {getReviewStatus(photo.status)}
+                                                    </div>
+                                                </div>
+                                            </div>
 
-                                            <div className="mt-auto d-flex gap-2 mb-2">
-                                                {photo.status !== 'approved' && (
-                                                    <button
-                                                        className="btn btn-sm btn-gold flex-grow-1"
-                                                        onClick={() => handleApprove(photo.id)}
-                                                    >
-                                                        ✓
-                                                    </button>
-                                                )}
-                                                {photo.status !== 'rejected' && (
-                                                    <button
-                                                        className="btn btn-sm btn-danger flex-grow-1"
-                                                        onClick={() => handleReject(photo.id)}
-                                                    >
-                                                        ✗
-                                                    </button>
+                                            <p className="upload-date text-white-50">
+                                                Uploaded: {new Date(photo.created_at).toLocaleDateString()}
+                                            </p>
+
+                                            <div className="media-actions">
+                                                {photo.status === 'pending' ? (
+                                                    <>
+                                                        <Button
+                                                            className="btn-gold flex-grow-1 me-1"
+                                                            size="sm"
+                                                            onClick={(e) => handleApprove(photo.id, e)}
+                                                        >
+                                                            <Check size={16} /> Approve
+                                                        </Button>
+                                                        <Button
+                                                            variant="danger"
+                                                            size="sm"
+                                                            className="flex-grow-1 ms-1"
+                                                            onClick={(e) => handleReject(photo.id, e)}
+                                                        >
+                                                            <X size={16} /> Reject
+                                                        </Button>
+                                                    </>
+                                                ) : (
+                                                    <div className="w-100 text-center py-1 border rounded border-secondary text-white">
+                                                        {getReviewStatus(photo.status)}
+                                                    </div>
                                                 )}
                                             </div>
 
-                                            <div className="d-flex gap-2">
-                                                <a
-                                                    href={photo.file_url}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="btn btn-sm btn-outline-gold flex-grow-1"
-                                                >
-                                                    View
-                                                </a>
-                                                <button
-                                                    className="btn btn-sm btn-outline-gold"
-                                                    onClick={() => navigate(`/admin/candidates/${photo.userId}`)}
-                                                >
-                                                    Profile
-                                                </button>
-                                            </div>
-                                        </Card.Body>
+                                            <Button
+                                                className="btn-outline-gold w-100 mt-2"
+                                                size="sm"
+                                                onClick={() => handleView(photo)}
+                                            >
+                                                <Eye size={16} /> View
+                                            </Button>
+                                            <Button
+                                                variant="outline-danger"
+                                                size="sm"
+                                                className="w-100 mt-2"
+                                                onClick={(e) => handleDelete(photo.id, e)}
+                                            >
+                                                <Trash2 size={16} /> Delete
+                                            </Button>
+                                        </div>
                                     </div>
-                                </Col>
-                            ))}
-                        </Row>
+                                ))
+                            )}
+                        </div>
                     )}
-
-                    <div className="mt-3 text-white">
-                        <small>Total Photos: {photos.length}</small>
-                    </div>
                 </Container>
+
+                {/* Photo View Modal */}
+                <Modal show={showModal} onHide={() => setShowModal(false)} centered size="lg" contentClassName="bg-dark border-secondary">
+                    <Modal.Header closeButton closeVariant="white" className="border-secondary">
+                        <Modal.Title className="text-white">
+                            {selectedPhoto?.candidateName}'s Photo
+                        </Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body className="text-center p-0 bg-black" style={{ minHeight: '400px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        {selectedPhoto && (
+                            <img
+                                src={getImageUrl(selectedPhoto.file_url)}
+                                alt={selectedPhoto.candidateName}
+                                style={{ maxWidth: '100%', maxHeight: '70vh', objectFit: 'contain' }}
+                            />
+                        )}
+                    </Modal.Body>
+                    <Modal.Footer className="border-secondary justify-content-between">
+                        <div>
+                            {selectedPhoto && getStatusBadge(selectedPhoto.status)}
+                        </div>
+                        <div className="d-flex gap-2">
+                            {selectedPhoto?.userId && (
+                                <Button
+                                    className="btn-outline-gold"
+                                    onClick={() => {
+                                        navigate(`/admin/candidates/${selectedPhoto.userId}`);
+                                        setShowModal(false);
+                                    }}
+                                >
+                                    View Profile
+                                </Button>
+                            )}
+                            <Button variant="secondary" onClick={() => setShowModal(false)}>Close</Button>
+                        </div>
+                    </Modal.Footer>
+                </Modal>
             </div>
         </div>
     );

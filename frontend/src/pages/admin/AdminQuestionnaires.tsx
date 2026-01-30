@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
-import { Container, Badge, Button, Row, Col, Card } from 'react-bootstrap';
+import { Container, Button, Modal, Row, Col } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
+import { FileText, Eye, Trash2, Check, X } from 'lucide-react';
 import AdminSidebar from '../../components/admin/AdminSidebar';
-import ConfirmationModal from '../../components/admin/ConfirmationModal';
 import api from '../../services/api';
 import '../admin/AdminDashboard.css';
-import './AdminMedia.css';
+import './AdminQuestionnaires.css';
 
 interface Questionnaire {
     id: string;
@@ -17,15 +17,15 @@ interface Questionnaire {
     createdAt: string;
     submittedAt: string;
     userId: string;
+    workExperience?: string;
+    details?: any; // For full details in modal
 }
 
 const AdminQuestionnaires = () => {
     const [questionnaires, setQuestionnaires] = useState<Questionnaire[]>([]);
     const [loading, setLoading] = useState(true);
-    const [selectedId, setSelectedId] = useState<string | null>(null);
-    const [showApproveModal, setShowApproveModal] = useState(false);
-    const [showRejectModal, setShowRejectModal] = useState(false);
-    const [rejectionReason, setRejectionReason] = useState('');
+    const [selectedQuestionnaire, setSelectedQuestionnaire] = useState<Questionnaire | null>(null);
+    const [showViewModal, setShowViewModal] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -44,7 +44,14 @@ const AdminQuestionnaires = () => {
             const response = await api.get('/admin/questionnaires', {
                 headers: { Authorization: `Bearer ${token}` }
             });
-            setQuestionnaires(response.data.questionnaires || []);
+
+            // Transform data if needed to match interface
+            const data = response.data.questionnaires.map((q: any) => ({
+                ...q,
+                title: q.title || `Questionnaire #${q.id.substring(0, 8)}...`
+            }));
+
+            setQuestionnaires(data || []);
         } catch (error) {
             console.error('Failed to fetch questionnaires:', error);
         } finally {
@@ -52,156 +59,117 @@ const AdminQuestionnaires = () => {
         }
     };
 
-    const handleApproveClick = (id: string) => {
-        setSelectedId(id);
-        setShowApproveModal(true);
+    const handleView = (q: Questionnaire) => {
+        // Use candidate_id/userId to fetch the questionnaire context
+        navigate(`/admin/questionnaires/${q.userId || q.candidate_id}`);
     };
 
-    const handleRejectClick = (id: string) => {
-        setSelectedId(id);
-        setShowRejectModal(true);
-    };
-
-    const handleApprove = async () => {
-        if (!selectedId) return;
+    const handleDelete = async (id: string) => {
+        if (!window.confirm('Are you sure you want to delete this questionnaire? This action cannot be undone.')) return;
         try {
             const token = localStorage.getItem('adminToken');
-            await api.put(`/admin/questionnaires/${selectedId}/approve`, {}, {
+            await api.delete(`/admin/questionnaires/${id}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             fetchQuestionnaires();
-            setShowApproveModal(false);
         } catch (error) {
-            console.error('Failed to approve questionnaire:', error);
-            alert('Failed to approve questionnaire');
+            console.error('Failed to delete questionnaire:', error);
+            alert('Failed to delete questionnaire');
         }
     };
 
-    const handleReject = async () => {
-        if (!selectedId || !rejectionReason) return;
-
-        try {
-            const token = localStorage.getItem('adminToken');
-            await api.put(`/admin/questionnaires/${selectedId}/reject`, { reason: rejectionReason }, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-            fetchQuestionnaires();
-            setShowRejectModal(false);
-            setRejectionReason('');
-        } catch (error) {
-            console.error('Failed to reject questionnaire:', error);
-            alert('Failed to reject questionnaire');
-        }
-    };
-
-    const getStatusBadge = (status: string) => {
-        const variants: { [key: string]: string } = {
-            'pending': 'warning',
-            'approved': 'success',
-            'rejected': 'danger'
-        };
-        return <Badge bg={variants[status] || 'secondary'} className="px-2 py-1">{status}</Badge>;
+    const formatDate = (dateString: string) => {
+        if (!dateString) return 'N/A';
+        return new Date(dateString).toLocaleDateString('en-GB'); // DD/MM/YYYY format as in screenshot
     };
 
     return (
         <div className="admin-dashboard">
             <AdminSidebar />
             <div className="admin-content">
-                <Container fluid>
-                    <div className="d-flex justify-content-between align-items-center mb-4">
-                        <h2 className="text-white mb-0">Questionnaire Submissions</h2>
-                        <span className="text-white-50">{questionnaires.length} items</span>
+                <Container fluid className="admin-questionnaires-container">
+                    {/* Header */}
+                    <div className="page-header">
+                        <div>
+                            <h1 className="page-title">
+                                <FileText size={32} color="#c9a227" />
+                                Questionnaires
+                            </h1>
+                            <p className="page-subtitle">View and manage all candidate questionnaires in the system</p>
+                        </div>
+                        <div className="total-badge">
+                            {questionnaires.length} TOTAL
+                        </div>
                     </div>
 
+                    {/* Table View */}
                     {loading ? (
                         <div className="text-center text-white py-5">
                             <div className="spinner-border text-gold" role="status"></div>
                         </div>
                     ) : (
-                        <Row>
-                            {questionnaires.length === 0 ? (
-                                <Col xs={12}>
-                                    <div className="text-center text-muted py-5 border border-secondary rounded bg-dark">
-                                        No questionnaires found
-                                    </div>
-                                </Col>
-                            ) : (
-                                questionnaires.map((q) => (
-                                    <Col key={q.id} md={6} xl={4} className="mb-4">
-                                        <Card className="h-100 bg-dark border-secondary">
-                                            <Card.Body>
-                                                <div className="d-flex justify-content-between align-items-start mb-3">
-                                                    <div>
-                                                        <h5 className="text-white mb-1">{q.candidateName || q.candidate_name}</h5>
-                                                        <div className="text-white-50 small">
-                                                            Submitted: {new Date(q.submittedAt || q.created_at || q.createdAt).toLocaleDateString()}
-                                                        </div>
-                                                    </div>
-                                                    {getStatusBadge(q.status)}
-                                                </div>
-
-                                                <div className="d-flex gap-2 mt-4">
-                                                    <Button
-                                                        className="btn-outline-gold flex-grow-1"
-                                                        size="sm"
-                                                        onClick={() => navigate(`/admin/candidates/${q.userId}`)}
-                                                    >
-                                                        Review Answers
-                                                    </Button>
-                                                </div>
-
-                                                {q.status === 'pending' && (
-                                                    <div className="d-flex gap-2 mt-2">
-                                                        <Button
-                                                            className="btn-gold flex-grow-1"
-                                                            size="sm"
-                                                            onClick={() => handleApproveClick(q.id)}
+                        <div className="table-card">
+                            <table className="custom-table">
+                                <thead>
+                                    <tr>
+                                        <th>Title</th>
+                                        <th>Candidate</th>
+                                        <th>Status</th>
+                                        <th>Created Date</th>
+                                        <th className="text-end">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {questionnaires.length === 0 ? (
+                                        <tr>
+                                            <td colSpan={5} className="text-center py-5 text-muted">
+                                                No questionnaires found
+                                            </td>
+                                        </tr>
+                                    ) : (
+                                        questionnaires.map((q) => (
+                                            <tr key={q.id}>
+                                                <td data-label="Title" className="col-title">
+                                                    {q.title}
+                                                </td>
+                                                <td data-label="Candidate" className="col-candidate">
+                                                    {q.candidateName || q.candidate_name}
+                                                </td>
+                                                <td data-label="Status">
+                                                    <span className={`status-badge ${q.status.toLowerCase()}`}>
+                                                        {q.status}
+                                                    </span>
+                                                </td>
+                                                <td data-label="Created Date" className="col-date">
+                                                    {formatDate(q.submittedAt || q.created_at || q.createdAt)}
+                                                </td>
+                                                <td data-label="Actions" className="col-actions">
+                                                    <div className="action-btn-group">
+                                                        <button
+                                                            className="action-btn view"
+                                                            onClick={() => handleView(q)}
+                                                            title="View Details"
                                                         >
-                                                            ✓ Approve
-                                                        </Button>
-                                                        <Button
-                                                            variant="danger"
-                                                            size="sm"
-                                                            className="flex-grow-1"
-                                                            onClick={() => handleRejectClick(q.id)}
+                                                            <Eye size={16} /> View
+                                                        </button>
+                                                        <button
+                                                            className="action-btn delete"
+                                                            onClick={() => handleDelete(q.id)}
+                                                            title="Delete"
                                                         >
-                                                            ✗ Reject
-                                                        </Button>
+                                                            <Trash2 size={16} />
+                                                        </button>
                                                     </div>
-                                                )}
-                                            </Card.Body>
-                                        </Card>
-                                    </Col>
-                                ))
-                            )}
-                        </Row>
+                                                </td>
+                                            </tr>
+                                        ))
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
                     )}
                 </Container>
             </div>
-
-            {/* Confirmation Modals */}
-            <ConfirmationModal
-                show={showApproveModal}
-                onHide={() => setShowApproveModal(false)}
-                onConfirm={handleApprove}
-                title="Approve Questionnaire"
-                message="Are you sure you want to approve this questionnaire response?"
-                confirmVariant="success"
-                confirmText="Approve"
-            />
-
-            <ConfirmationModal
-                show={showRejectModal}
-                onHide={() => setShowRejectModal(false)}
-                onConfirm={handleReject}
-                title="Reject Questionnaire"
-                message="Please provide a reason for rejecting this questionnaire."
-                confirmVariant="danger"
-                confirmText="Reject"
-                showReasonInput={true}
-                reason={rejectionReason}
-                onReasonChange={setRejectionReason}
-            />
         </div>
     );
 };

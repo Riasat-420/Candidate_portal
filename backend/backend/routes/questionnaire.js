@@ -18,15 +18,55 @@ router.post('/', authenticate, async (req, res) => {
     } = req.body;
 
     console.log('Questionnaire submission for user:', userId);
-    console.log('Request body:', req.body);
+    console.log('Request body keys:', Object.keys(req.body));
 
-    // Basic validation
-    if (!personalInfo || !contactInfo || !workExperience || !references || !consents) {
+    // Relaxed validation - only check for critical mandatory fields
+    // The frontend sends formData directly, not in sections
+    const hasBasicInfo = req.body.firstName && req.body.lastName && req.body.emailAddress;
+
+    if (!hasBasicInfo) {
+      console.log('Validation failed. Missing mandatory fields (firstName, lastName, emailAddress)');
       return res.status(400).json({
         error: 'Incomplete questionnaire',
-        message: 'Please complete all required sections: personalInfo, contactInfo, workExperience, references, and consents'
+        message: 'Please fill in all mandatory fields marked with *'
       });
     }
+
+    console.log('Validation passed. Proceeding with questionnaire submission...');
+
+    // Restructure flat formData into sections for database
+    const structuredData = {
+      personalInfo: {
+        firstName: req.body.firstName || '',
+        lastName: req.body.lastName || '',
+        jobTitle: req.body.jobTitle || '',
+        dateOfBirth: req.body.dateOfBirth || '',
+        currently: req.body.currently || 'employed',
+        driversLicense: req.body.driversLicense || 'yes',
+        maritalStatus: req.body.maritalStatus || 'single'
+      },
+      contactInfo: {
+        emailAddress: req.body.emailAddress || '',
+        contactNumber: req.body.contactNumber || '',
+        city: req.body.city || ''
+      },
+      workExperience: req.body.workExperience || '',
+      references: {
+        previousEmployers: req.body.previousEmployers || [],
+        referrals: req.body.referrals || []
+      },
+      additionalInfo: {
+        whereToBe5Years: req.body.whereToBe5Years || '',
+        reasonsForEmployment: req.body.reasonsForEmployment || '',
+        expectedSalary: req.body.expectedSalary || '',
+        availability: req.body.availability || ''
+      },
+      consents: {
+        socialMediaConsent: req.body.socialMediaConsent || false,
+        radioAdvertConsent: req.body.radioAdvertConsent || false,
+        displayPictureConsent: req.body.displayPictureConsent || false
+      }
+    };
 
     // Check if questionnaire already exists
     const existingQuestionnaire = await Questionnaire.findOne({
@@ -36,12 +76,12 @@ router.post('/', authenticate, async (req, res) => {
     if (existingQuestionnaire) {
       // Update existing questionnaire
       await existingQuestionnaire.update({
-        personalInfo,
-        contactInfo,
-        workExperience,
-        references,
-        additionalInfo: additionalInfo || {},
-        consents,
+        personalInfo: structuredData.personalInfo,
+        contactInfo: structuredData.contactInfo,
+        workExperience: structuredData.workExperience,
+        references: structuredData.references,
+        additionalInfo: structuredData.additionalInfo,
+        consents: structuredData.consents,
         submittedAt: new Date()
       });
 
@@ -54,12 +94,12 @@ router.post('/', authenticate, async (req, res) => {
       // Create new questionnaire
       const questionnaire = await Questionnaire.create({
         userId,
-        personalInfo,
-        contactInfo,
-        workExperience,
-        references,
-        additionalInfo: additionalInfo || {},
-        consents,
+        personalInfo: structuredData.personalInfo,
+        contactInfo: structuredData.contactInfo,
+        workExperience: structuredData.workExperience,
+        references: structuredData.references,
+        additionalInfo: structuredData.additionalInfo,
+        consents: structuredData.consents,
         submittedAt: new Date()
       });
 
@@ -151,6 +191,26 @@ router.post('/generate-questions', authenticate, async (req, res) => {
       error: 'Internal server error',
       message: 'Failed to generate questions: ' + error.message
     });
+  }
+});
+
+// Get questionnaire status
+router.get('/status', authenticate, async (req, res) => {
+  try {
+    const { Questionnaire } = require('../models');
+    const userId = req.user.id;
+
+    const questionnaire = await Questionnaire.findOne({
+      where: { userId }
+    });
+
+    res.json({
+      completed: !!questionnaire,
+      submittedAt: questionnaire ? questionnaire.submittedAt : null
+    });
+  } catch (error) {
+    console.error('Error fetching questionnaire status:', error);
+    res.status(500).json({ error: 'Failed to fetch questionnaire status' });
   }
 });
 

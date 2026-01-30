@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Container, Badge, Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
+import { Mic, Check, X, Trash2, User } from 'lucide-react';
 import AdminSidebar from '../../components/admin/AdminSidebar';
 import api from '../../services/api';
 import '../admin/AdminDashboard.css';
@@ -49,7 +50,8 @@ const AdminAudio = () => {
         }
     };
 
-    const handleApprove = async (id: string) => {
+    const handleApprove = async (id: string, e?: React.MouseEvent) => {
+        if (e) e.stopPropagation();
         if (!window.confirm('Approve this audio recording?')) return;
         try {
             const token = localStorage.getItem('adminToken');
@@ -63,7 +65,8 @@ const AdminAudio = () => {
         }
     };
 
-    const handleReject = async (id: string) => {
+    const handleReject = async (id: string, e?: React.MouseEvent) => {
+        if (e) e.stopPropagation();
         const reason = prompt('Reason for rejection:');
         if (reason === null) return;
 
@@ -76,6 +79,21 @@ const AdminAudio = () => {
         } catch (error) {
             console.error('Failed to reject audio:', error);
             alert('Failed to reject audio');
+        }
+    };
+
+    const handleDelete = async (id: string, e?: React.MouseEvent) => {
+        if (e) e.stopPropagation();
+        if (!window.confirm('Are you sure you want to delete this audio recording? This action cannot be undone.')) return;
+        try {
+            const token = localStorage.getItem('adminToken');
+            await api.delete(`/admin/uploads/${id}`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            fetchAudioRecordings();
+        } catch (error) {
+            console.error('Failed to delete audio:', error);
+            alert('Failed to delete audio');
         }
     };
 
@@ -112,9 +130,18 @@ const AdminAudio = () => {
             <AdminSidebar />
             <div className="admin-content">
                 <Container fluid>
-                    <div className="d-flex justify-content-between align-items-center mb-4">
-                        <h2 className="text-white mb-0">Audio Recordings</h2>
-                        <span className="text-white-50">{audioRecordings.length} recordings found</span>
+                    {/* Standardized Header */}
+                    <div className="page-header">
+                        <div className="page-header-content">
+                            <h1 className="page-title">
+                                <Mic size={32} color="#c9a227" />
+                                Audio Recordings
+                            </h1>
+                            <p className="page-subtitle">Listen to and manage candidate audio introductions</p>
+                        </div>
+                        <div className="total-badge">
+                            {audioRecordings.length} TOTAL
+                        </div>
                     </div>
 
                     {loading ? (
@@ -144,18 +171,23 @@ const AdminAudio = () => {
                                             <div className="media-overlay">
                                                 <span className="duration-badge">{formatDuration(audio.duration)}</span>
                                             </div>
+                                            <div className="position-absolute top-0 end-0 m-2">
+                                                {getStatusBadge(audio.status)}
+                                            </div>
                                         </div>
                                         <div className="media-card-body">
                                             <div className="d-flex justify-content-between align-items-start mb-2">
-                                                <div>
+                                                <div className="media-info-col">
                                                     <h5 className="candidate-name mb-0">{audio.candidateName}</h5>
-                                                    <div className="text-white-50 small">Attempts: {audio.attempts || 1}</div>
+                                                    <div className="review-status-text">
+                                                        {getReviewStatus(audio.status)}
+                                                    </div>
                                                 </div>
-                                                {getStatusBadge(audio.status)}
                                             </div>
                                             <p className="upload-date text-white-50">
                                                 Uploaded: {new Date(audio.created_at).toLocaleDateString()}
                                             </p>
+                                            <div className="text-white-50 small mb-3">Attempts: {audio.attempts || 1}</div>
 
                                             <div className="media-actions">
                                                 {audio.status === 'pending' ? (
@@ -163,17 +195,17 @@ const AdminAudio = () => {
                                                         <Button
                                                             className="btn-gold flex-grow-1 me-1"
                                                             size="sm"
-                                                            onClick={() => handleApprove(audio.id)}
+                                                            onClick={(e) => handleApprove(audio.id, e)}
                                                         >
-                                                            ✓ Approve
+                                                            <Check size={16} /> Approve
                                                         </Button>
                                                         <Button
                                                             variant="danger"
                                                             size="sm"
                                                             className="flex-grow-1 ms-1"
-                                                            onClick={() => handleReject(audio.id)}
+                                                            onClick={(e) => handleReject(audio.id, e)}
                                                         >
-                                                            ✗ Reject
+                                                            <X size={16} /> Reject
                                                         </Button>
                                                     </>
                                                 ) : (
@@ -187,7 +219,15 @@ const AdminAudio = () => {
                                                 size="sm"
                                                 onClick={() => navigate(`/admin/candidates/${audio.userId}`)}
                                             >
-                                                View Candidate Profile
+                                                <User size={16} /> View Candidate Profile
+                                            </Button>
+                                            <Button
+                                                variant="outline-danger"
+                                                size="sm"
+                                                className="w-100 mt-2"
+                                                onClick={(e) => handleDelete(audio.id, e)}
+                                            >
+                                                <Trash2 size={16} /> Delete
                                             </Button>
                                         </div>
                                     </div>

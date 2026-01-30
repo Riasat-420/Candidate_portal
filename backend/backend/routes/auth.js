@@ -70,7 +70,7 @@ router.get('/onboarding-data/:userId', authenticate, authController.getUserOnboa
  * @desc Update user's professional summary
  * @access Private
  */
-router.put('/professional-summary', authenticate, 
+router.put('/professional-summary', authenticate,
   validate([body('professionalSummary').isString().notEmpty().withMessage('Professional summary is required')]),
   authController.updateProfessionalSummary
 );
@@ -88,5 +88,19 @@ router.put('/profile', authenticate, validate(updateProfileValidation), authCont
  * @access Private
  */
 router.put('/user/:userId/onboarding-data', authenticate, authController.updateUserOnboardingData);
+
+/**
+ * @route POST /api/auth/forgot-password
+ * @desc Request password reset
+ * @access Public
+ */
+router.post('/forgot-password', authController.forgotPassword);
+
+/**
+ * @route POST /api/auth/reset-password
+ * @desc Reset password
+ * @access Public
+ */
+router.post('/reset-password', authController.resetPassword);
 
 module.exports = router;

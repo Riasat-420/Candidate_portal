@@ -1,0 +1,409 @@
+/* Completion Page Tabbed CSS */
+.completion-page {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 30px 20px;
+}
+
+/* Congratulations Header */
+.completion-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.success-icon-large {
+    margin-bottom: 20px;
+}
+
+.checkmark-circle {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #c9a227 0%, #d4af37 100%);
+    color: #000;
+    font-size: 3rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    animation: scale-bounce 0.6s ease;
+}
+
+@keyframes scale-bounce {
+    0% {
+        transform: scale(0);
+    }
+
+    50% {
+        transform: scale(1.15);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+.completion-title {
+    color: #fff;
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.completion-subtitle {
+    color: #ccc;
+    font-size: 1.1rem;
+    margin-bottom: 15px;
+}
+
+.completion-notice {
+    color: #c9a227;
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+
+/* Tab Navigation */
+.completion-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 30px;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 15px;
+}
+
+.completion-tab {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #999;
+    padding: 12px 30px;
+    border-radius: 8px 8px 0 0;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.completion-tab:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+}
+
+.completion-tab.active {
+    background: #c9a227;
+    color: #000;
+    border-color: #c9a227;
+}
+
+.required-badge {
+    background: #ff4444;
+    color: #fff;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Tab Panel */
+.tab-panel {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 12px;
+    padding: 40px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Onboarding Summary Panel */
+.summary-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+/* Progress Section */
+.progress-section {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 25px;
+}
+
+.progress-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.progress-header h3 {
+    color: #fff;
+    font-size: 1.3rem;
+    margin: 0;
+    font-weight: 600;
+}
+
+.progress-percent {
+    color: #c9a227;
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.progress-bar-container {
+    background: rgba(255, 255, 255, 0.1);
+    height: 12px;
+    border-radius: 20px;
+    overflow: hidden;
+    margin-bottom: 25px;
+}
+
+.progress-bar-fill {
+    background: linear-gradient(90deg, #c9a227 0%, #d4af37 100%);
+    height: 100%;
+    border-radius: 20px;
+    transition: width 0.5s ease;
+}
+
+.progress-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+.progress-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: all 0.3s ease;
+}
+
+.progress-card:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.progress-card.completed {
+    border-color: #4caf50;
+}
+
+.progress-card.incomplete {
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.card-icon {
+    font-size: 2rem;
+}
+
+.card-content {
+    flex: 1;
+}
+
+.card-content h4 {
+    color: #fff;
+    font-size: 0.9rem;
+    margin: 0 0 5px 0;
+    font-weight: 600;
+}
+
+.status-badge {
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 12px;
+    display: inline-block;
+}
+
+.status-badge.completed {
+    background: rgba(76, 175, 80, 0.2);
+    color: #4caf50;
+}
+
+.status-badge.incomplete {
+    background: rgba(255, 255, 255, 0.1);
+    color: #999;
+}
+
+/* Application Status */
+.application-status {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 25px;
+}
+
+.application-status h3 {
+    color: #fff;
+    font-size: 1.3rem;
+    margin: 0 0 20px 0;
+    font-weight: 600;
+}
+
+.status-alert {
+    background: rgba(255, 165, 0, 0.15);
+    border: 1px solid rgba(255, 165, 0, 0.3);
+    border-radius: 10px;
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+}
+
+.alert-content {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex: 1;
+}
+
+.alert-icon {
+    font-size: 1.8rem;
+}
+
+.alert-content p {
+    color: #fff;
+    margin: 0;
+    font-size: 1rem;
+}
+
+.complete-now-btn {
+    background: #c9a227 !important;
+    border: none !important;
+    color: #000 !important;
+    font-weight: 600;
+    padding: 10px 25px;
+    border-radius: 8px;
+    white-space: nowrap;
+    transition: all 0.3s ease;
+}
+
+.complete-now-btn:hover {
+    background: #b89322 !important;
+    transform: translateY(-2px);
+}
+
+/* What Happens Next */
+.next-steps-section {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 25px;
+}
+
+.next-steps-section h3 {
+    color: #fff;
+    font-size: 1.3rem;
+    margin: 0 0 25px 0;
+    font-weight: 600;
+}
+
+.next-steps-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.next-step-item {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+}
+
+.step-number {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #c9a227 0%, #d4af37 100%);
+    color: #000;
+    font-size: 1.2rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.step-content {
+    flex: 1;
+}
+
+.step-content h4 {
+    color: #fff;
+    font-size: 1rem;
+    margin: 0 0 5px 0;
+    font-weight: 600;
+}
+
+.step-content p {
+    color: #ccc;
+    font-size: 0.9rem;
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* Sign Out Section */
+.sign-out-section {
+    text-align: center;
+    padding-top: 20px;
+}
+
+.sign-out-button {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    color: #fff !important;
+    padding: 12px 30px;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.sign-out-button:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border-color: rgba(255, 255, 255, 0.3) !important;
+}
+
+/* Questionnaire Panel */
+.questionnaire-panel {
+    /* Panel is handled by Questionnaire component */
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .completion-title {
+        font-size: 1.8rem;
+    }
+
+    .completion-tabs {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .completion-tab {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .tab-panel {
+        padding: 25px 20px;
+    }
+
+    .progress-cards {
+        grid-template-columns: 1fr;
+    }
+
+    .status-alert {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .complete-now-btn {
+        width: 100%;
+    }
+}
