@@ -40,7 +40,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     completed: {
       type: DataTypes.BOOLEAN,
-      defaultValue: true
+      defaultValue: false
     },
     submittedAt: {
       type: DataTypes.DATE,

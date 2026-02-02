@@ -13,7 +13,7 @@ const Welcome = ({ onComplete }: WelcomeProps) => {
 
     const handleGetStarted = () => {
         if (termsAccepted) {
-            onComplete('photo-upload');
+            onComplete('id-assessment');
         }
     };
 

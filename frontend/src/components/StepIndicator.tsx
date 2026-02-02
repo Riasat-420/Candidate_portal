@@ -15,11 +15,11 @@ interface StepIndicatorProps {
 
 const steps: Step[] = [
     { id: 'welcome', number: 1, label: 'Welcome', icon: '👋' },
-    { id: 'id-assessment', number: 2, label: 'ID Assessment', icon: '📋' },
+    { id: 'id-assessment', number: 2, label: 'ID Assessment', icon: '🆔' },
     { id: 'photo-upload', number: 3, label: 'Photo Upload', icon: '📸' },
     { id: 'audio-recording', number: 4, label: 'Audio Recording', icon: '🎤' },
-    { id: 'video-recording', number: 5, label: 'Video Recording', icon: '🎥' },
-    { id: 'completion', number: 6, label: 'Completion', icon: '✓' }
+    { id: 'video-recording', number: 5, label: 'Video', icon: '🎥' },
+    { id: 'completion', number: 6, label: 'Final Steps', icon: '📝' }
 ];
 
 const StepIndicator = ({ currentStep, completedSteps, onStepClick }: StepIndicatorProps) => {

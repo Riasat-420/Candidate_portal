@@ -49,8 +49,10 @@ const Completion = ({ onComplete }: CompletionProps) => {
         setActiveTab('summary');
     };
 
-    // Calculate progress: Photo (25%) + Audio (25%) + Video (25%) + Questionnaire (25%)
-    const progress = questionnaireCompleted ? 100 : 75;
+    // Calculate progress based on 6 total steps
+    // Steps completed so far: Welcome, ID Assessment, Photo, Audio, Video (5 steps)
+    // Progress = (5 / 6) * 100 = 83.33%
+    const progress = questionnaireCompleted ? 100 : Math.round((5 / 6) * 100);
 
     if (loading) {
         return <div className="completion-page" style={{ color: 'white', textAlign: 'center', padding: '2rem' }}>Loading...</div>;
@@ -113,6 +115,14 @@ const Completion = ({ onComplete }: CompletionProps) => {
                             </div>
 
                             <div className="progress-cards">
+                                <div className="progress-card completed">
+                                    <div className="card-icon">📋</div>
+                                    <div className="card-content">
+                                        <h4>ID Assessment</h4>
+                                        <span className="status-badge completed">Completed</span>
+                                    </div>
+                                </div>
+
                                 <div className="progress-card completed">
                                     <div className="card-icon">📸</div>
                                     <div className="card-content">

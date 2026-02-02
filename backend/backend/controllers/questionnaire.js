@@ -30,7 +30,7 @@ const submitQuestionnaire = async (req, res) => {
     });
 
     let questionnaire;
-    
+
     if (existingQuestionnaire) {
       // Update existing questionnaire
       questionnaire = await existingQuestionnaire.update({
@@ -40,7 +40,9 @@ const submitQuestionnaire = async (req, res) => {
         references,
         additionalInfo,
         consents,
-        submittedAt: new Date()
+        consents,
+        submittedAt: new Date(),
+        completed: true
       });
     } else {
       // Create new questionnaire
@@ -52,7 +54,9 @@ const submitQuestionnaire = async (req, res) => {
         references,
         additionalInfo,
         consents,
-        submittedAt: new Date()
+        consents,
+        submittedAt: new Date(),
+        completed: true
       });
     }
 
@@ -173,24 +177,24 @@ const generateQuestions = async (req, res) => {
     // Get summary from request (frontend is sending 'summary' not 'professionalSummary')
     const { summary, useAi = true } = req.body;
     const professionalSummary = summary; // For compatibility with existing code
-    
+
     if (!summary || summary.trim() === '') {
       return res.status(400).json({
         error: 'Invalid input',
         message: 'Professional summary is required'
       });
     }
-    
+
     console.log('Generating questions from summary:', summary, 'Using AI:', useAi);
-    
+
     // First try to find pre-generated questions for faster response
     const preGenQuestions = findPreGeneratedQuestions(professionalSummary);
     const fallbackQuestions = generateFallbackQuestions(professionalSummary);
-    
+
     // If AI is disabled or we're in a development environment without API access, return pre-generated questions
     if (!useAi) {
       const initialQuestions = preGenQuestions || fallbackQuestions;
-      
+
       return res.status(200).json({
         success: true,
         questions: initialQuestions,
@@ -198,12 +202,12 @@ const generateQuestions = async (req, res) => {
         source: 'template'
       });
     }
-    
+
     try {
       // Try to generate questions using Gemini AI
       const aiQuestions = await generateInterviewQuestions(professionalSummary);
       console.log('AI-generated questions:', aiQuestions);
-      
+
       // If we have a user ID, store the questions in the database
       if (req.user && req.user.id) {
         await User.update({
@@ -213,7 +217,7 @@ const generateQuestions = async (req, res) => {
           where: { id: req.user.id }
         });
       }
-      
+
       return res.status(200).json({
         success: true,
         questions: aiQuestions,
@@ -222,10 +226,10 @@ const generateQuestions = async (req, res) => {
       });
     } catch (aiError) {
       console.error('Error generating AI questions:', aiError);
-      
+
       // If AI generation fails, fall back to pre-generated questions
       const fallbackQuestions = preGenQuestions || generateFallbackQuestions(professionalSummary);
-      
+
       return res.status(200).json({
         success: true,
         questions: fallbackQuestions,
@@ -244,8 +248,67 @@ const generateQuestions = async (req, res) => {
   }
 };
 
+/**
+ * Submit ID Assessment (Step 1)
+ * @route POST /api/questionnaire/id-assessment
+ */
+const submitIdAssessment = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const {
+      employmentStatus, roleAppliedFor, yearsExperience, education,
+      tools, currentSalary, expectedSalary, age, availability, whyChooseYou
+    } = req.body;
+
+    // Construct the questionnaire parts from flat fields
+    const personalInfo = { employmentStatus, education, age };
+    const workExperience = { roleAppliedFor, yearsExperience, tools, currentSalary, expectedSalary, availability };
+    const additionalInfo = { whyChooseYou };
+
+    // Default empty objects for required fields not yet filled
+    const contactInfo = { email: req.user.email, phone: '', city: '' };
+    const references = [];
+    const consents = { socialMediaConsent: false, radioAdvertConsent: false, displayPictureConsent: false };
+
+    // Check if user has already started a questionnaire
+    const existingQuestionnaire = await Questionnaire.findOne({ where: { userId } });
+
+    if (existingQuestionnaire) {
+      await existingQuestionnaire.update({
+        personalInfo: { ...existingQuestionnaire.personalInfo, ...personalInfo },
+        workExperience: { ...existingQuestionnaire.workExperience, ...workExperience },
+        additionalInfo: { ...existingQuestionnaire.additionalInfo, ...additionalInfo },
+        completed: false // Ensure it remains incomplete until final submission
+      });
+    } else {
+      await Questionnaire.create({
+        userId,
+        personalInfo,
+        workExperience,
+        additionalInfo,
+        contactInfo, // Required by model, but empty for now
+        references,  // Required by model, but empty for now
+        consents,    // Required by model, but empty for now
+        completed: false
+      });
+    }
+
+    // Update user onboarding step
+    await User.update(
+      { onboardingStep: 'photo-upload' },
+      { where: { id: userId } }
+    );
+
+    res.status(200).json({ message: 'ID Assessment saved successfully' });
+  } catch (error) {
+    console.error('Submit ID Assessment error:', error);
+    res.status(500).json({ error: 'Failed to save assessment', message: error.message });
+  }
+};
+
 module.exports = {
   submitQuestionnaire,
   getQuestionnaire,
-  generateQuestions
+  generateQuestions,
+  submitIdAssessment
 };

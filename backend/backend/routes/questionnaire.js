@@ -2,6 +2,8 @@ const express = require('express');
 const { authenticate } = require('../middleware/auth'); // CORRECT: Destructure the authenticate function
 
 const router = express.Router();
+const questionnaireController = require('../controllers/questionnaire'); // Import controller
+
 
 // Submit completion questionnaire (ApplicationQuestionnaire.js)
 router.post('/', authenticate, async (req, res) => {
@@ -213,5 +215,13 @@ router.get('/status', authenticate, async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch questionnaire status' });
   }
 });
+
+
+/**
+ * @route POST /api/questionnaire/id-assessment
+ * @desc Submit ID Assessment (Step 1)
+ * @access Private
+ */
+router.post('/id-assessment', authenticate, questionnaireController.submitIdAssessment);
 
 module.exports = router;

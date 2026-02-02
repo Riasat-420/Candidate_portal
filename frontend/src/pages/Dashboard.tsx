@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import StepIndicator from '../components/StepIndicator';
 import Welcome from './onboarding/Welcome';
+import IdAssessment from './onboarding/IdAssessment';
 import PhotoUpload from './onboarding/PhotoUpload';
 import AudioRecording from './onboarding/AudioRecording';
 import VideoRecording from './onboarding/VideoRecording';
@@ -18,7 +19,7 @@ const Dashboard = () => {
     // Step configuration
     const steps = [
         { id: 'welcome', component: Welcome },
-        { id: 'id-assessment', component: Welcome }, // Placeholder
+        { id: 'id-assessment', component: IdAssessment },
         { id: 'photo-upload', component: PhotoUpload },
         { id: 'audio-recording', component: AudioRecording },
         { id: 'video-recording', component: VideoRecording }, // Includes tabs for summary + recording
