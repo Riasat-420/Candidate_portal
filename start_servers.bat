@@ -1,19 +1,20 @@
 @echo off
-echo ===================================================
-echo   Starting 3% Candidate Portal Servers
-echo ===================================================
+title Starting 3 Percent Servers
+echo Starting Backend Server...
+
+cd /d "C:\WORK- SPACE\antigravity\3 percent\backend\backend"
+start "Backend Server - Port 5000" cmd /k "npm run dev"
+
+timeout /t 3
+
+echo Starting Frontend Server...
+cd /d "C:\WORK- SPACE\antigravity\3 percent\frontend"
+start "Frontend Server - Port 5173" cmd /k "npm run dev"
 
 echo.
-echo 1. Starting Backend Server (Port 5000)...
-start "Backend API" cmd /k "cd backend\backend && npm run dev"
-
+echo Servers are starting in separate windows.
+echo Backend: http://localhost:5000
+echo Frontend: http://localhost:5173
 echo.
-echo 2. Starting Frontend Server (Port 5173/5174)...
-start "Frontend UI" cmd /k "cd frontend && npm run dev"
-
-echo.
-echo ===================================================
-echo   Servers launched in new windows!
-echo   Please check the new windows for status.
-echo ===================================================
-pause
+echo You can close this window now.
+timeout /t 5

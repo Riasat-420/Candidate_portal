@@ -5,12 +5,14 @@ import { Mail, Phone, MapPin, Calendar, Image, Mic, Video } from 'lucide-react';
 import AdminSidebar from '../../components/admin/AdminSidebar';
 import ConfirmationModal from '../../components/admin/ConfirmationModal';
 import QuestionnaireView from '../../components/admin/QuestionnaireView';
+import CategorySelector from '../../components/admin/CategorySelector';
 import api from '../../services/api';
 import '../admin/AdminDashboard.css';
 import './AdminCandidateDetails.css';
 
 interface User {
     id: string;
+    candidateNumber?: string;
     firstName: string;
     lastName: string;
     email: string;
@@ -20,6 +22,9 @@ interface User {
     createdAt: string;
     approvalStatus?: string;
     rejectionReason?: string;
+    category?: 'entry' | 'managerial' | 'executive' | null;
+    categorizedAt?: string;
+    categorizedBy?: string;
     uploads?: any[];
     questionnaire?: any;
 }
@@ -94,6 +99,31 @@ const AdminCandidateDetails = () => {
         }
     };
 
+    const handleCategoryChange = async (newCategory: 'entry' | 'managerial' | 'executive') => {
+
+        if (!newCategory) return;
+
+        try {
+            const token = localStorage.getItem('adminToken');
+            await api.patch(`/admin/candidates/${id}/category`,
+                { category: newCategory },
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+
+            // Update local state
+            if (candidate) {
+                setCandidate({
+                    ...candidate,
+                    category: newCategory as 'entry' | 'managerial' | 'executive',
+                    categorizedAt: new Date().toISOString()
+                });
+            }
+        } catch (error) {
+            console.error('Failed to update category:', error);
+            alert('Failed to update category. Please try again.');
+        }
+    };
+
     const calculateProgress = () => {
         if (!candidate) return 0;
         const steps = ['welcome', 'photo', 'audio', 'video', 'questionnaire', 'completion'];
@@ -138,9 +168,16 @@ const AdminCandidateDetails = () => {
                     {/* Header Section */}
                     <div className="candidate-header">
                         {/* Name and Actions */}
-                        <div className="d-flex justify-content-between align-items-start mb-4">
-                            <div className="candidate-name-section">
-                                <h1 className="candidate-name">{candidate.firstName} {candidate.lastName}</h1>
+                        <div className="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3">
+                            <div className="candidate-name-section w-100">
+                                <h1 className="candidate-name text-break">
+                                    {candidate.firstName} {candidate.lastName}
+                                    {candidate.candidateNumber && (
+                                        <span className="ms-3 badge bg-dark border border-secondary" style={{ fontSize: '1rem', verticalAlign: 'middle', color: '#e0e0e0' }}>
+                                            {candidate.candidateNumber}
+                                        </span>
+                                    )}
+                                </h1>
                                 <p className="candidate-registered">
                                     Registered On {new Date(candidate.createdAt).toLocaleDateString('en-US', {
                                         year: 'numeric',
@@ -148,11 +185,20 @@ const AdminCandidateDetails = () => {
                                         day: 'numeric'
                                     })}
                                 </p>
+
+                                {/* Category Selector */}
+                                <div className="mt-4">
+                                    <CategorySelector
+                                        category={candidate.category}
+                                        onChange={handleCategoryChange}
+                                        isLoading={processing}
+                                    />
+                                </div>
                             </div>
-                            <div className="d-flex gap-2">
+                            <div className="d-flex gap-2 w-100 w-md-auto justify-content-md-end mt-3 mt-md-0">
                                 {candidate.approvalStatus !== 'approved' && (
                                     <Button
-                                        className="btn-gold"
+                                        className="btn-gold flex-grow-1 flex-md-grow-0"
                                         onClick={() => setShowApproveModal(true)}
                                         disabled={processing}
                                     >
@@ -162,6 +208,7 @@ const AdminCandidateDetails = () => {
                                 {candidate.approvalStatus !== 'rejected' && (
                                     <Button
                                         variant="danger"
+                                        className="flex-grow-1 flex-md-grow-0"
                                         onClick={() => setShowRejectModal(true)}
                                         disabled={processing}
                                     >

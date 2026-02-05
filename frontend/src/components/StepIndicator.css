@@ -4,6 +4,8 @@
     margin-bottom: 30px;
     background: rgba(0, 0, 0, 0.3);
     border-radius: 8px;
+    position: relative;
+    z-index: 1;
 }
 
 .step-container {
@@ -13,6 +15,8 @@
     max-width: 900px;
     margin: 0 auto;
     padding: 0 20px;
+    position: relative;
+    /* Contain absolute children */
 }
 
 .step-wrapper {
@@ -30,44 +34,58 @@
 }
 
 .step-circle {
-    width: 50px;
-    height: 50px;
+    width: 60px;
+    /* Slightly larger for easier reading */
+    height: 60px;
     border-radius: 50%;
-    background: #3a3a3a;
+    background: #2a2a2a;
+    /* Dark background */
     border: 2px solid #555;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: all 0.3s ease;
+    position: relative;
+    z-index: 2;
+    /* Ensure circle stays on top of connector */
 }
 
 .step-number {
     font-size: 1.2rem;
-    font-weight: bold;
-    color: #999;
+    font-weight: 700;
+    color: #ffffff !important;
+    /* Force white text */
+    opacity: 1 !important;
+    /* Force visibility */
+    margin: 0;
+    line-height: 1;
 }
 
 .step-label {
-    font-size: 0.75rem;
-    color: #999;
+    font-size: 0.85rem;
+    color: #ccc;
+    /* Lighter gray for better visibility */
     text-align: center;
     white-space: nowrap;
+    margin-top: 8px;
+    font-weight: 500;
 }
 
 /* Current Step */
 .step-item.current .step-circle {
     background: #c9a227;
     border-color: #c9a227;
-    box-shadow: 0 0 15px rgba(201, 162, 39, 0.5);
+    box-shadow: 0 0 15px rgba(201, 162, 39, 0.4);
 }
 
 .step-item.current .step-number {
-    color: #000;
+    color: #000 !important;
+    /* Black text on yellow */
 }
 
 .step-item.current .step-label {
     color: #c9a227;
-    font-weight: 600;
+    font-weight: 700;
 }
 
 /* Completed Step */
@@ -104,16 +122,65 @@
 
 /* Responsive */
 @media (max-width: 768px) {
+    .step-indicator {
+        padding: 15px 0;
+        margin-bottom: 20px;
+    }
+
+    .step-container {
+        justify-content: flex-start;
+        overflow-x: auto;
+        padding-bottom: 15px;
+        /* Space for scrollbar */
+        gap: 15px;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: thin;
+        /* Firefox */
+    }
+
+    /* Scrollbar styling */
+    .step-container::-webkit-scrollbar {
+        height: 4px;
+    }
+
+    .step-container::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 2px;
+    }
+
+    .step-container::-webkit-scrollbar-thumb {
+        background: #555;
+        border-radius: 2px;
+    }
+
+    .step-wrapper {
+        flex: 0 0 auto;
+        /* Prevent shrinking */
+    }
+
+    .step-item {
+        min-width: 80px;
+        /* Ensure minimum click area */
+    }
+
+    .step-connector {
+        display: none;
+        /* Hide connectors on mobile for cleaner look */
+    }
+
     .step-circle {
-        width: 40px;
-        height: 40px;
+        width: 45px;
+        height: 45px;
     }
 
     .step-number {
-        font-size: 1rem;
+        font-size: 1.1rem;
     }
 
     .step-label {
-        font-size: 0.65rem;
+        font-size: 0.75rem;
+        white-space: normal;
+        /* Allow text wrapping if needed */
+        line-height: 1.2;
     }
 }

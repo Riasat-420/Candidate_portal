@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { Button, Modal } from 'react-bootstrap';
 import './OnboardingSteps.css';
+import './Welcome.css';
+import introVideo from '../../assets/intro_video.mp4';
 
 interface WelcomeProps {
     onComplete: (nextStep: string) => void;
@@ -18,110 +20,150 @@ const Welcome = ({ onComplete }: WelcomeProps) => {
     };
 
     return (
-        <div className="onboarding-step welcome-step">
-            <div className="welcome-content">
-                {/* Yellow Welcome Badge */}
-                <div className="welcome-badge">WELCOME</div>
-
-                {/* Main Heading */}
-                <h1 className="welcome-heading">
+        <div className="welcome-redesign">
+            {/* Hero Section */}
+            <section className="welcome-hero">
+                <div className="welcome-badge">BECOME UNEMPLOYABLE</div>
+                <h1>
                     Unlock Your Potential: Begin Your Journey with<br />3% Generation
                 </h1>
-
-                {/* Subtitle */}
-                <p className="welcome-subtitle">
-                    This is more than an onboarding process; it's your first step towards a transformative career. Join an elite network of top-tier talent and access exclusive opportunities tailored to your skills.
+                <p className="welcome-hero-subtitle">
+                    This is more than an onboarding process; it's your first step towards a transformative career.
+                    Join an elite network of top-tier talent and access exclusive opportunities tailored to your skills.
                 </p>
+            </section>
 
-                {/* Get Started Button */}
-                <div className="welcome-actions">
-                    {/* Terms and Conditions Checkbox */}
-                    <div style={{ marginBottom: '20px', textAlign: 'center' }}>
-                        <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: '0.9rem' }}>
-                            <input
-                                type="checkbox"
-                                checked={termsAccepted}
-                                onChange={(e) => setTermsAccepted(e.target.checked)}
-                                style={{ marginRight: '10px', width: '18px', height: '18px', cursor: 'pointer' }}
-                            />
-                            <span>
-                                I agree to the{' '}
-                                <a
-                                    href="#"
-                                    onClick={(e) => {
-                                        e.preventDefault();
-                                        setShowTerms(true);
-                                    }}
-                                    style={{ color: '#4a9eff', textDecoration: 'underline', cursor: 'pointer' }}
-                                >
-                                    terms and conditions
-                                </a>
-                                {' '}and privacy policy
-                            </span>
-                        </label>
-                    </div>
-
-                    <Button
-                        className="btn-get-started"
-                        size="lg"
-                        onClick={handleGetStarted}
-                        disabled={!termsAccepted}
-                        style={{ opacity: termsAccepted ? 1 : 0.5 }}
+            {/* Video Section */}
+            <section className="welcome-video-section">
+                <h2>See What Awaits You</h2>
+                <p>Watch how thousands like you transformed their careers in just 15 Minutes!</p>
+                <div className="video-container">
+                    <video
+                        controls
+                        preload="metadata"
+                        src={introVideo}
                     >
-                        Start Your Journey
-                    </Button>
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+            </section>
+
+            {/* Steps Section */}
+            <section className="welcome-steps">
+                <h2>
+                    Complete <strong>4 Steps</strong> to Construct your <strong>RECRUITER-READY CV</strong> in <strong>15 MINUTES</strong>
+                </h2>
+                <div className="steps-grid">
+                    {/* Step 1: Professional Photo */}
+                    <div className="step-card">
+                        <div className="step-icon-wrapper">
+                            <div className="step-number">1</div>
+                            <div className="step-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z" />
+                                    <circle cx="12" cy="13" r="3" />
+                                </svg>
+                            </div>
+                        </div>
+                        <h3>Professional Photo</h3>
+                        <p>
+                            Upload or capture a clear, professional headshot that represents you at your best.
+                        </p>
+                    </div>
+
+                    {/* Step 2: Audio Introduction */}
+                    <div className="step-card">
+                        <div className="step-icon-wrapper">
+                            <div className="step-number">2</div>
+                            <div className="step-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" />
+                                    <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+                                    <line x1="12" x2="12" y1="19" y2="22" />
+                                </svg>
+                            </div>
+                        </div>
+                        <h3>Audio Introduction</h3>
+                        <p>
+                            Record a brief audio intro to showcase your communication skills and personality.
+                        </p>
+                    </div>
+
+                    {/* Step 3: Video Presentation */}
+                    <div className="step-card">
+                        <div className="step-icon-wrapper">
+                            <div className="step-number">3</div>
+                            <div className="step-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <polygon points="23 7 16 12 23 17 23 7" />
+                                    <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
+                                </svg>
+                            </div>
+                        </div>
+                        <h3>Video Presentation</h3>
+                        <p>
+                            Create a professional video introduction answering key questions about your career.
+                        </p>
+                    </div>
+
+                    {/* Step 4: Questionnaire */}
+                    <div className="step-card">
+                        <div className="step-icon-wrapper">
+                            <div className="step-number">4</div>
+                            <div className="step-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
+                                    <polyline points="14 2 14 8 20 8" />
+                                    <line x1="16" x2="8" y1="13" y2="13" />
+                                    <line x1="16" x2="8" y1="17" y2="17" />
+                                    <line x1="10" x2="8" y1="9" y2="9" />
+                                </svg>
+                            </div>
+                        </div>
+                        <h3>Questionnaire</h3>
+                        <p>
+                            Complete a comprehensive profile with work experience, skills, and career goals.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            {/* CTA Section */}
+            <section className="welcome-cta">
+                <h2>Ready to BEGIN Your Career?</h2>
+
+                <div className="privacy-checkbox-wrapper">
+                    <label className="privacy-checkbox-label">
+                        <input
+                            type="checkbox"
+                            checked={termsAccepted}
+                            onChange={(e) => setTermsAccepted(e.target.checked)}
+                        />
+                        <span>
+                            I agree to the
+                            <a
+                                href="#"
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    setShowTerms(true);
+                                }}
+                            >
+                                terms and conditions
+                            </a>
+                            and privacy policy
+                        </span>
+                    </label>
                 </div>
 
-                {/* Additional Info */}
-                <div className="welcome-info-box">
-                    <h3 className="info-title">What You'll Complete:</h3>
-                    <div className="info-grid">
-                        <div className="info-item">
-                            <span className="info-icon">📷</span>
-                            <span className="info-text">Professional Photo</span>
-                        </div>
-                        <div className="info-item">
-                            <span className="info-icon">🎤</span>
-                            <span className="info-text">Audio Introduction</span>
-                        </div>
-                        <div className="info-item">
-                            <span className="info-icon">🎥</span>
-                            <span className="info-text">Video Presentation</span>
-                        </div>
-                        <div className="info-item">
-                            <span className="info-icon">📝</span>
-                            <span className="info-text">Profile Questionnaire</span>
-                        </div>
-                    </div>
-                    <p className="info-note">⏱️ Estimated time: 15-20 minutes</p>
-
-                    {/* Recording Tips */}
-                    <div style={{ marginTop: '20px', background: 'rgba(218, 165, 32, 0.1)', borderLeft: '3px solid #c9a227', padding: '15px', borderRadius: '5px' }}>
-                        <h6 style={{ color: '#c9a227', marginBottom: '10px', fontSize: '0.9rem' }}>📝 Important Recording Tips:</h6>
-                        <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '0.85rem', lineHeight: '1.6' }}>
-                            <li><strong>Audio Recording:</strong> Start by stating your name, pause briefly, then share your professional summary</li>
-                            <li><strong>Video Recording:</strong> Only mention your name in the video</li>
-                            <li>This helps employers identify you while maintaining your privacy</li>
-                        </ul>
-                    </div>
-
-                    {/* Motivational Footer */}
-                    <div style={{ marginTop: '30px', padding: '20px', background: 'rgba(0,0,0,0.3)', borderRadius: '8px', borderTop: '2px solid #c9a227' }}>
-                        <h5 style={{ color: '#c9a227', marginBottom: '15px', textAlign: 'center', fontSize: '1rem' }}>Why This Matters</h5>
-                        <div style={{ display: 'grid', gap: '12px', fontSize: '0.85rem', lineHeight: '1.6' }}>
-                            <p style={{ margin: 0, textAlign: 'center' }}>
-                                <strong style={{ color: '#c9a227' }}>Showing up as your best self</strong> helps you land your dream job <strong>10 times faster</strong>.
-                            </p>
-                            <p style={{ margin: 0, textAlign: 'center' }}>
-                                Find a company that matches your <strong style={{ color: '#c9a227' }}>energy, work ethic, and attitude</strong>.
-                            </p>
-                            <p style={{ margin: 0, textAlign: 'center' }}>
-                                It's time to express yourself in a <strong style={{ color: '#c9a227' }}>professional way</strong> that gets you the right exposure.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
+                <Button
+                    className="btn-get-started-new"
+                    size="lg"
+                    onClick={handleGetStarted}
+                    disabled={!termsAccepted}
+                >
+                    GET STARTED NOW
+                </Button>
+            </section>
 
             {/* Terms and Conditions Modal */}
             <Modal show={showTerms} onHide={() => setShowTerms(false)} centered size="lg">

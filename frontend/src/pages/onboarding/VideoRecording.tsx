@@ -309,7 +309,7 @@ const VideoRecording = ({ onComplete }: VideoRecordingProps) => {
                     <div className="video-two-column">
                         {/* Left Column - Video Recording */}
                         <div className="video-recording-area">
-                            {!cameraStarted ? (
+                            {!cameraStarted && !recordedVideo ? (
                                 <div className="camera-placeholder">
                                     <div className="camera-icon">📹</div>
                                     <p>Camera Not Started</p>

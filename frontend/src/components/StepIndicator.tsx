@@ -1,10 +1,11 @@
 import './StepIndicator.css';
+import { User, Camera, Mic, Video, FileCheck, CheckCircle2, Home } from 'lucide-react';
 
 interface Step {
     id: string;
     number: number;
     label: string;
-    icon: string;
+    icon: React.ReactNode;
 }
 
 interface StepIndicatorProps {
@@ -13,16 +14,27 @@ interface StepIndicatorProps {
     onStepClick: (stepId: string) => void;
 }
 
-const steps: Step[] = [
-    { id: 'welcome', number: 1, label: 'Welcome', icon: '👋' },
-    { id: 'id-assessment', number: 2, label: 'ID Assessment', icon: '🆔' },
-    { id: 'photo-upload', number: 3, label: 'Photo Upload', icon: '📸' },
-    { id: 'audio-recording', number: 4, label: 'Audio Recording', icon: '🎤' },
-    { id: 'video-recording', number: 5, label: 'Video', icon: '🎥' },
-    { id: 'completion', number: 6, label: 'Final Steps', icon: '📝' }
-];
+const getSteps = (currentStep: string, completedSteps: string[]): Step[] => {
+    // Helper to determine icon color based on state
+    const getIconColor = (stepId: string) => {
+        if (stepId === currentStep) return '#000000'; // Black on active
+        if (completedSteps.includes(stepId)) return '#ffffff'; // White on completed
+        return '#cccccc'; // Grey on pending
+    };
+
+    return [
+        { id: 'welcome', number: 1, label: 'Welcome', icon: <Home size={24} /> },
+        { id: 'id-assessment', number: 2, label: 'ID Assessment', icon: <FileCheck size={24} /> },
+        { id: 'photo-upload', number: 3, label: 'Photo Upload', icon: <Camera size={24} /> },
+        { id: 'audio-recording', number: 4, label: 'Audio', icon: <Mic size={24} /> },
+        { id: 'video-recording', number: 5, label: 'Video', icon: <Video size={24} /> },
+        { id: 'completion', number: 6, label: 'Finish', icon: <CheckCircle2 size={24} /> }
+    ];
+};
 
 const StepIndicator = ({ currentStep, completedSteps, onStepClick }: StepIndicatorProps) => {
+    const steps = getSteps(currentStep, completedSteps);
+
     const getCurrentStepIndex = () => {
         return steps.findIndex(step => step.id === currentStep);
     };
@@ -52,7 +64,7 @@ const StepIndicator = ({ currentStep, completedSteps, onStepClick }: StepIndicat
                             style={{ cursor: isStepAccessible(step.id) ? 'pointer' : 'not-allowed' }}
                         >
                             <div className="step-circle">
-                                <span className="step-number">{step.number}</span>
+                                {step.icon}
                             </div>
                             <span className="step-label">{step.label}</span>
                         </div>

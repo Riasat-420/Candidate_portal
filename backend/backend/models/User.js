@@ -32,6 +32,12 @@ module.exports = (sequelize, DataTypes) => {
     phone: {
       type: DataTypes.STRING
     },
+    candidateNumber: {
+      type: DataTypes.STRING,
+      unique: true,
+      allowNull: true,
+      comment: 'Unique candidate identifier (e.g. CAN-1)'
+    },
     onboardingStep: {
       type: DataTypes.ENUM('welcome', 'photo-upload', 'audio-recording', 'video-recording', 'questionnaire', 'completion'),
       defaultValue: 'welcome'
@@ -68,6 +74,21 @@ module.exports = (sequelize, DataTypes) => {
     },
     rejectionReason: {
       type: DataTypes.TEXT
+    },
+    category: {
+      type: DataTypes.ENUM('entry', 'managerial', 'executive'),
+      allowNull: true,
+      defaultValue: null,
+      comment: 'Career level categorization: entry, managerial, or executive'
+    },
+    categorizedAt: {
+      type: DataTypes.DATE,
+      allowNull: true
+    },
+    categorizedBy: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      comment: 'Admin email who assigned the category'
     }
   }, {
     hooks: {

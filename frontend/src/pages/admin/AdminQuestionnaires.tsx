@@ -3,6 +3,7 @@ import { Container, Button, Modal, Row, Col } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { FileText, Eye, Trash2, Check, X } from 'lucide-react';
 import AdminSidebar from '../../components/admin/AdminSidebar';
+import ConfirmationModal from '../../components/admin/ConfirmationModal';
 import api from '../../services/api';
 import '../admin/AdminDashboard.css';
 import './AdminQuestionnaires.css';
@@ -26,6 +27,7 @@ const AdminQuestionnaires = () => {
     const [loading, setLoading] = useState(true);
     const [selectedQuestionnaire, setSelectedQuestionnaire] = useState<Questionnaire | null>(null);
     const [showViewModal, setShowViewModal] = useState(false);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -64,13 +66,21 @@ const AdminQuestionnaires = () => {
         navigate(`/admin/questionnaires/${q.userId || q.candidate_id}`);
     };
 
-    const handleDelete = async (id: string) => {
-        if (!window.confirm('Are you sure you want to delete this questionnaire? This action cannot be undone.')) return;
+    const handleDeleteClick = (q: Questionnaire) => {
+        setSelectedQuestionnaire(q);
+        setShowDeleteModal(true);
+    };
+
+    const confirmDelete = async () => {
+        if (!selectedQuestionnaire) return;
+
         try {
             const token = localStorage.getItem('adminToken');
-            await api.delete(`/admin/questionnaires/${id}`, {
+            await api.delete(`/admin/questionnaires/${selectedQuestionnaire.id}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
+            setShowDeleteModal(false);
+            setSelectedQuestionnaire(null);
             fetchQuestionnaires();
         } catch (error) {
             console.error('Failed to delete questionnaire:', error);
@@ -154,7 +164,7 @@ const AdminQuestionnaires = () => {
                                                         </button>
                                                         <button
                                                             className="action-btn delete"
-                                                            onClick={() => handleDelete(q.id)}
+                                                            onClick={() => handleDeleteClick(q)}
                                                             title="Delete"
                                                         >
                                                             <Trash2 size={16} />
@@ -170,6 +180,16 @@ const AdminQuestionnaires = () => {
                     )}
                 </Container>
             </div>
+
+            <ConfirmationModal
+                show={showDeleteModal}
+                onHide={() => setShowDeleteModal(false)}
+                onConfirm={confirmDelete}
+                title="Delete Questionnaire"
+                message={`Are you sure you want to delete the questionnaire for ${selectedQuestionnaire?.candidateName || selectedQuestionnaire?.candidate_name}? This action cannot be undone.`}
+                confirmText="Delete"
+                confirmVariant="danger"
+            />
         </div>
     );
 };

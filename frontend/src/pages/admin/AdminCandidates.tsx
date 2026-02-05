@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Container, Button, Form, Badge, Card, Row, Col } from 'react-bootstrap';
+import { Container, Button, Form, Card, Row, Col } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
-import { Search, Filter, SortAsc, SortDesc, Eye, Trash2 } from 'lucide-react';
+import { Search, Filter, SortAsc, SortDesc, Eye, Trash2, Check, X, Clock } from 'lucide-react';
 import AdminSidebar from '../../components/admin/AdminSidebar';
 import api from '../../services/api';
 import '../admin/AdminDashboard.css';
@@ -11,6 +11,7 @@ interface Candidate {
     id: string;
     firstName: string;
     lastName: string;
+    candidateNumber?: string;
     email: string;
     phone: string;
     onboardingStep: string;
@@ -20,6 +21,7 @@ interface Candidate {
     questionnaire?: {
         status: string;
     };
+    category?: 'entry' | 'managerial' | 'executive';
 }
 
 const AdminCandidates = () => {
@@ -27,6 +29,7 @@ const AdminCandidates = () => {
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('all');
+    const [categoryFilter, setCategoryFilter] = useState('all'); // Added categoryFilter state
     const [sortBy, setSortBy] = useState('newest'); // 'newest', 'oldest', 'name-asc', 'name-desc', 'progress-high', 'progress-low'
     const navigate = useNavigate();
 
@@ -65,19 +68,30 @@ const AdminCandidates = () => {
         };
 
         const badge = badges[step] || { variant: 'secondary', text: step };
-        return <Badge bg={badge.variant}>{badge.text}</Badge>;
+        return <span className={`badge bg-${badge.variant}`}>{badge.text}</span>;
     };
 
     const getApprovalBadge = (status: string) => {
-        const badges: { [key: string]: { variant: string; text: string } } = {
-            'pending': { variant: 'warning', text: 'Pending' },
-            'approved': { variant: 'success', text: 'Approved' },
-            'rejected': { variant: 'danger', text: 'Rejected' },
-            'archived': { variant: 'secondary', text: 'Archived' }
-        };
-
-        const badge = badges[status] || { variant: 'secondary', text: status || 'Pending' };
-        return <Badge bg={badge.variant}>{badge.text}</Badge>;
+        switch (status) {
+            case 'approved':
+                return (
+                    <div title="Approved" className="d-flex align-items-center justify-content-center bg-success bg-opacity-10 rounded-circle p-2">
+                        <Check size={20} className="text-success" strokeWidth={3} />
+                    </div>
+                );
+            case 'rejected':
+                return (
+                    <div title="Rejected" className="d-flex align-items-center justify-content-center bg-danger bg-opacity-10 rounded-circle p-2">
+                        <X size={20} className="text-danger" strokeWidth={3} />
+                    </div>
+                );
+            default:
+                return (
+                    <div title="Pending Review" className="d-flex align-items-center justify-content-center bg-warning bg-opacity-10 rounded-circle p-2">
+                        <Clock size={20} className="text-warning" strokeWidth={3} />
+                    </div>
+                );
+        }
     };
 
     // Calculate progress percentage helper
@@ -96,7 +110,9 @@ const AdminCandidates = () => {
             (statusFilter === 'pending' && (!candidate.approvalStatus || candidate.approvalStatus === 'pending')) ||
             candidate.approvalStatus === statusFilter;
 
-        return matchesSearch && matchesStatus;
+        const matchesCategory = categoryFilter === 'all' || candidate.category === categoryFilter; // Added category filter logic
+
+        return matchesSearch && matchesStatus && matchesCategory;
     }).sort((a, b) => {
         switch (sortBy) {
             case 'newest':
@@ -152,25 +168,26 @@ const AdminCandidates = () => {
                     <Card className="bg-dark border-secondary mb-4 p-3 filter-card">
                         <div className="d-flex flex-wrap gap-3 align-items-center">
                             {/* Search */}
-                            <div className="flex-grow-1 position-relative" style={{ minWidth: '250px' }}>
+                            {/* Search */}
+                            <div className="flex-grow-1 position-relative col-12 col-lg-4">
                                 <Search className="position-absolute text-muted" size={18} style={{ left: '12px', top: '10px' }} />
                                 <Form.Control
                                     type="text"
                                     placeholder="Search by name or email..."
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="bg-black text-white border-secondary ps-5"
+                                    className="bg-black text-white border-secondary ps-5 w-100"
                                     style={{ color: '#fff' }}
                                 />
                             </div>
 
                             {/* Status Filter */}
-                            <div style={{ minWidth: '180px' }}>
+                            <div className="col-12 col-md-auto">
                                 <Form.Select
                                     value={statusFilter}
                                     onChange={(e) => setStatusFilter(e.target.value)}
-                                    className="bg-black text-white border-secondary"
-                                    style={{ color: '#fff' }}
+                                    className="bg-black text-white border-secondary w-100"
+                                    style={{ color: '#fff', minWidth: '160px' }}
                                 >
                                     <option value="all">All Statuses</option>
                                     <option value="pending">Pending Review</option>
@@ -179,13 +196,28 @@ const AdminCandidates = () => {
                                 </Form.Select>
                             </div>
 
+                            {/* Category Filter */}
+                            <div className="col-12 col-md-auto">
+                                <Form.Select
+                                    value={categoryFilter}
+                                    onChange={(e) => setCategoryFilter(e.target.value)}
+                                    className="bg-black text-white border-secondary w-100"
+                                    style={{ color: '#fff', minWidth: '160px' }}
+                                >
+                                    <option value="all">All Career Levels</option>
+                                    <option value="entry">Entry Level</option>
+                                    <option value="managerial">Managerial</option>
+                                    <option value="executive">Executive</option>
+                                </Form.Select>
+                            </div>
+
                             {/* Sort By */}
-                            <div style={{ minWidth: '180px' }}>
+                            <div className="col-12 col-md-auto">
                                 <Form.Select
                                     value={sortBy}
                                     onChange={(e) => setSortBy(e.target.value)}
-                                    className="bg-black text-white border-secondary"
-                                    style={{ color: '#fff' }}
+                                    className="bg-black text-white border-secondary w-100"
+                                    style={{ color: '#fff', minWidth: '160px' }}
                                 >
                                     <option value="newest">📅 Newest First</option>
                                     <option value="oldest">📅 Oldest First</option>
@@ -219,17 +251,28 @@ const AdminCandidates = () => {
                                             style={{ cursor: 'pointer' }}
                                         >
                                             <Card.Body className="d-flex flex-column">
-                                                <div className="d-flex justify-content-between align-items-start mb-3">
-                                                    <div className="d-flex align-items-center">
+                                                <div className="d-flex justify-content-between align-items-center mb-3">
+                                                    <div className="d-flex align-items-center" style={{ overflow: 'hidden', flex: 1, minWidth: 0 }}>
                                                         <div className="rounded-circle bg-secondary d-flex align-items-center justify-content-center text-white me-3" style={{ width: '48px', height: '48px', fontSize: '1.2rem', flexShrink: 0 }}>
                                                             {candidate.firstName?.[0]}{candidate.lastName?.[0]}
                                                         </div>
-                                                        <div style={{ overflow: 'hidden' }}>
-                                                            <h5 className="card-title text-white mb-0 text-truncate">{candidate.firstName} {candidate.lastName}</h5>
+                                                        <div style={{ overflow: 'hidden', flex: 1, minWidth: 0 }}>
+                                                            <div className="d-flex align-items-center mb-1">
+                                                                {candidate.candidateNumber && (
+                                                                    <span className="badge bg-secondary me-2 flex-shrink-0" style={{ fontSize: '0.7rem' }}>
+                                                                        {candidate.candidateNumber}
+                                                                    </span>
+                                                                )}
+                                                                <h5 className="card-title text-white mb-0 text-truncate">
+                                                                    {candidate.firstName} {candidate.lastName}
+                                                                </h5>
+                                                            </div>
                                                             <div className="card-subtitle text-muted small text-truncate">{candidate.email}</div>
                                                         </div>
                                                     </div>
-                                                    {getApprovalBadge(candidate.approvalStatus || 'pending')}
+                                                    <div className="flex-shrink-0 ms-2">
+                                                        {getApprovalBadge(candidate.approvalStatus || 'pending')}
+                                                    </div>
                                                 </div>
 
                                                 <div className="mb-3">
@@ -241,9 +284,9 @@ const AdminCandidates = () => {
                                                         <span className="text-white-50 small">Questionnaire</span>
                                                         <span className="text-white small">
                                                             {candidate.questionnaire ? (
-                                                                <Badge bg={candidate.questionnaire.status === 'approved' ? 'success' : candidate.questionnaire.status === 'rejected' ? 'danger' : 'warning'}>
+                                                                <span className={`badge ${candidate.questionnaire.status === 'approved' ? 'bg-success' : candidate.questionnaire.status === 'rejected' ? 'bg-danger' : 'bg-warning'}`}>
                                                                     {candidate.questionnaire.status}
-                                                                </Badge>
+                                                                </span>
                                                             ) : (
                                                                 <span className="text-muted">Not started</span>
                                                             )}

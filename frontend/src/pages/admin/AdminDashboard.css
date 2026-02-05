@@ -2,6 +2,8 @@
     display: flex;
     min-height: 100vh;
     background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+    width: 100%;
+    overflow-x: hidden;
 }
 
 .admin-content {
@@ -138,6 +140,42 @@
     border-top: 1px solid #333;
 }
 
-.btn-close-white {
-    filter: invert(1) grayscale(100%) brightness(200%);
+
+@media (max-width: 768px) {
+    .admin-content {
+        margin-left: 0;
+        padding: 1rem;
+        padding-top: 80px;
+        width: 100%;
+        overflow-x: hidden;
+    }
+
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .page-header .total-badge {
+        align-self: flex-start;
+    }
+
+    /* Adjust cards for mobile */
+    .filter-card .d-flex {
+        flex-direction: column;
+        align-items: stretch !important;
+    }
+
+    .filter-card .d-flex>div {
+        width: 100% !important;
+        min-width: 0 !important;
+        /* Force override inline styles */
+    }
+
+    /* Force inputs to respect width */
+    .filter-card input,
+    .filter-card select {
+        width: 100% !important;
+        min-width: 0 !important;
+    }
 }

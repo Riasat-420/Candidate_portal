@@ -714,7 +714,7 @@ const Questionnaire = ({ onComplete }: QuestionnaireProps) => {
                             name="socialMediaConsent"
                             checked={formData.socialMediaConsent}
                             onChange={handleChange}
-                            label="Do you agree to allow us to advertise your profile on social media?"
+                            label="Do you agree to allow us to advertise your profile on our website?"
                         />
                     </Form.Group>
 

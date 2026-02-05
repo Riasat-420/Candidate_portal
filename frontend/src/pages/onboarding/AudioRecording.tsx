@@ -97,6 +97,12 @@ const AudioRecording = ({ onComplete }: AudioRecordingProps) => {
             return;
         }
 
+        // Validate minimum duration of 15 seconds
+        if (duration < 15) {
+            setError('Audio recording must be at least 15 seconds. Please record again.');
+            return;
+        }
+
         setUploading(true);
         setError('');
 

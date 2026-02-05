@@ -162,6 +162,26 @@ router.put('/questionnaires/:id/reject', authenticateAdmin, (req, res) => {
   }
 });
 
+/**
+ * @route PATCH /api/admin/candidates/:id/category
+ * @desc Update candidate category (entry, managerial, executive)
+ * @access Admin only
+ */
+router.patch('/candidates/:id/category', authenticateAdmin, (req, res) => {
+  if (typeof adminController.updateCandidateCategory === 'function') {
+    adminController.updateCandidateCategory(req, res);
+  } else {
+    res.status(500).json({ error: 'Update candidate category function not available' });
+  }
+});
+
+/**
+ * @route DELETE /api/admin/questionnaires/:id
+ * @desc Delete a questionnaire
+ * @access Admin only
+ */
+router.delete('/questionnaires/:id', authenticateAdmin, adminController.deleteQuestionnaire);
+
 module.exports = router;
 
 /**

@@ -76,7 +76,7 @@ const getAllCandidates = async (req, res) => {
       where: {
         role: { [Op.ne]: 'admin' }
       },
-      attributes: ['id', 'firstName', 'lastName', 'email', 'phone', 'onboardingStep', 'onboardingCompleted', 'createdAt', 'approvalStatus', 'approvedAt', 'rejectionReason'],
+      attributes: ['id', 'firstName', 'lastName', 'email', 'phone', 'candidateNumber', 'category', 'onboardingStep', 'onboardingCompleted', 'createdAt', 'approvalStatus', 'approvedAt', 'rejectionReason'],
       include: [
         {
           model: Questionnaire,
@@ -764,7 +764,18 @@ const updateQuestionnaire = async (req, res) => {
 };
 
 const deleteQuestionnaire = async (req, res) => {
-  res.status(501).json({ message: 'Delete questionnaire not implemented' });
+  try {
+    const { id } = req.params;
+    const questionnaire = await Questionnaire.findByPk(id);
+    if (!questionnaire) {
+      return res.status(404).json({ error: 'Questionnaire not found' });
+    }
+    await questionnaire.destroy();
+    res.status(200).json({ message: 'Questionnaire deleted successfully' });
+  } catch (error) {
+    console.error('Delete questionnaire error:', error);
+    res.status(500).json({ error: 'Failed to delete questionnaire' });
+  }
 };
 
 // Delete Candidate
@@ -857,4 +868,90 @@ module.exports = {
   getAllAudioRecordings,
   deleteCandidate,
   deleteUpload
+};
+
+
+
+// Update candidate category
+const updateCandidateCategory = async (req, res) => {
+  try {
+    const { id } = req.params; // candidate ID
+    const { category } = req.body; // 'entry' | 'managerial' | 'executive'
+    const adminEmail = req.user.email; // from auth middleware
+
+    // Validate category
+    if (!category) {
+      return res.status(400).json({ error: 'Category is required' });
+    }
+
+    if (!['entry', 'managerial', 'executive'].includes(category)) {
+      return res.status(400).json({
+        error: 'Invalid category',
+        message: 'Category must be one of: entry, managerial, executive'
+      });
+    }
+
+    // Find user
+    const user = await User.findByPk(id);
+    if (!user) {
+      return res.status(404).json({ error: 'Candidate not found' });
+    }
+
+    // Only categorize non-admin users
+    if (user.role === 'admin') {
+      return res.status(400).json({ error: 'Cannot categorize admin users' });
+    }
+
+    // Update category
+    user.category = category;
+    user.categorizedAt = new Date();
+    user.categorizedBy = adminEmail;
+    await user.save();
+
+    res.json({
+      success: true,
+      message: `Candidate categorized as ${category}`,
+      data: {
+        id: user.id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        category: user.category,
+        categorizedAt: user.categorizedAt,
+        categorizedBy: user.categorizedBy
+      }
+    });
+  } catch (error) {
+    console.error('Error updating category:', error);
+    res.status(500).json({
+      error: 'Failed to update category',
+      message: error.message
+    });
+  }
+};
+
+module.exports = {
+  adminLogin,
+  getDashboardStats,
+  getAllCandidates,
+  getCandidateById,
+  approveCandidate,
+  rejectCandidate,
+  approveUpload,
+  rejectUpload,
+  approveQuestionnaire,
+  rejectQuestionnaire,
+  bulkApproveCandidates,
+  bulkApproveUploads,
+  getAllVideos,
+  getAllPhotos,
+  getAllAudioRecordings,
+  getAllQuestionnaires,
+  getQuestionnaireById,
+  createQuestionnaire,
+  updateQuestionnaire,
+  deleteQuestionnaire,
+  deleteCandidate,
+  deleteUpload,
+  updateCandidateCategory
 };

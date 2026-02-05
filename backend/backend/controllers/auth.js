@@ -19,12 +19,17 @@ const register = async (req, res) => {
     }
 
     // Create new user
+    // Get count of existing candidates to generate next CAN number
+    const userCount = await User.count({ where: { role: 'user' } });
+    const candidateNumber = `CAN-${userCount + 1}`;
+
     const user = await User.create({
       email,
       password,
       firstName,
       lastName,
-      phone
+      phone,
+      candidateNumber
     });
 
     // Generate JWT token
@@ -37,6 +42,7 @@ const register = async (req, res) => {
       firstName: user.firstName,
       lastName: user.lastName,
       phone: user.phone,
+      candidateNumber: user.candidateNumber,
       onboardingStep: user.onboardingStep,
       onboardingCompleted: user.onboardingCompleted
     };
@@ -221,7 +227,7 @@ const getUserOnboardingData = async (req, res) => {
     // Get authenticated user ID - ignore URL parameter completely
     const userId = req.user.id;
 
-    console.log('Getting onboarding data for authenticated user:', userId);
+    // console.log('Getting onboarding data for authenticated user:', userId);
 
     // Find the user data
     const userData = await User.findOne({
@@ -389,7 +395,7 @@ const updateUserOnboardingData = async (req, res) => {
       });
     }
 
-    console.log(`Updating onboarding data for user ${userId}:`, req.body);
+    // console.log(`Updating onboarding data for user ${userId}:`, req.body);
 
     // Build update object from the request body
     const updateData = {};
@@ -460,11 +466,11 @@ const forgotPassword = async (req, res) => {
     // For this environment, we return the link as a mock.
     const resetLink = `http://localhost:5173/reset-password?token=${resetToken}`;
 
-    console.log('------------------------------------------------');
-    console.log('MOCK EMAIL SERVICE - PASSWORD RESET');
-    console.log(`To: ${email}`);
-    console.log(`Link: ${resetLink}`);
-    console.log('------------------------------------------------');
+    // console.log('------------------------------------------------');
+    // console.log('MOCK EMAIL SERVICE - PASSWORD RESET');
+    // console.log(`To: ${email}`);
+    // console.log(`Link: ${resetLink}`);
+    // console.log('------------------------------------------------');
 
     res.status(200).json({
       message: 'Password reset link generated (check server console)',
