@@ -2,7 +2,7 @@
 title Starting 3 Percent Servers
 echo Starting Backend Server...
 
-cd /d "C:\WORK- SPACE\antigravity\3 percent\backend\backend"
+cd /d "C:\WORK- SPACE\antigravity\3 percent\backend"
 start "Backend Server - Port 5000" cmd /k "npm run dev"
 
 timeout /t 3
