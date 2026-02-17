@@ -68,13 +68,20 @@ app.get('*', (req, res) => {
 });
 
 // Sync database and start server
-db.sequelize.sync().then(() => {
-  console.log('Database connected and synced');
-  app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-  });
-}).catch((err) => {
-  console.error('Failed to sync database:', err.message);
-  // Optional: Start server anyway if you want it to handle requests even without DB
-  // app.listen(PORT, () => console.log(`Server running on port ${PORT} (DB disconnected)`));
-});
+const startServer = async () => {
+  try {
+    await db.sequelize.authenticate();
+    console.log('Database connection established successfully.');
+    await db.sequelize.sync();
+    console.log('Database synced.');
+  } catch (err) {
+    console.error('Unable to connect to the database:', err.message);
+    console.error('The application will start without a database connection. API endpoints requiring DB will fail.');
+  } finally {
+    app.listen(PORT, () => {
+      console.log(`Server is running on port ${PORT}`);
+    });
+  }
+};
+
+startServer();
