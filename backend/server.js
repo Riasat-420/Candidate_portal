@@ -83,7 +83,7 @@ const startServer = async () => {
     console.error('Unable to connect to the database:', err.message);
     console.error('The application will start without a database connection. API endpoints requiring DB will fail.');
   } finally {
-    app.listen(PORT, () => {
+    app.listen(PORT, '0.0.0.0', () => {
       console.log(`Server is running on port ${PORT}`);
     });
   }
