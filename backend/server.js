@@ -64,7 +64,12 @@ app.get('/api', (req, res) => {
 // The "catch-all" handler: for any request that doesn't
 // match one above, send back React's index.html file.
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  const indexPath = path.join(__dirname, 'public', 'index.html');
+  if (require('fs').existsSync(indexPath)) {
+    res.sendFile(indexPath);
+  } else {
+    res.send('Backend is running, but the Frontend build was not found. Please check your build configuration.');
+  }
 });
 
 // Sync database and start server
