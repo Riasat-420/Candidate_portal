@@ -31,7 +31,7 @@ const VideoRecording = ({ onComplete }: VideoRecordingProps) => {
     const videoRef = useRef<HTMLVideoElement>(null);
     const mediaRecorderRef = useRef<MediaRecorder | null>(null);
     const chunksRef = useRef<Blob[]>([]);
-    const timerRef = useRef<NodeJS.Timeout | null>(null);
+    const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     const wordCount = summary.trim().split(/\s+/).filter(word => word.length > 0).length;
     const minWords = 50;

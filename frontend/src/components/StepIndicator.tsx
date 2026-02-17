@@ -1,12 +1,5 @@
+import { Camera, Mic, Video, FileCheck, CheckCircle2, Home } from 'lucide-react';
 import './StepIndicator.css';
-import { User, Camera, Mic, Video, FileCheck, CheckCircle2, Home } from 'lucide-react';
-
-interface Step {
-    id: string;
-    number: number;
-    label: string;
-    icon: React.ReactNode;
-}
 
 interface StepIndicatorProps {
     currentStep: string;
@@ -14,26 +7,15 @@ interface StepIndicatorProps {
     onStepClick: (stepId: string) => void;
 }
 
-const getSteps = (currentStep: string, completedSteps: string[]): Step[] => {
-    // Helper to determine icon color based on state
-    const getIconColor = (stepId: string) => {
-        if (stepId === currentStep) return '#000000'; // Black on active
-        if (completedSteps.includes(stepId)) return '#ffffff'; // White on completed
-        return '#cccccc'; // Grey on pending
-    };
-
-    return [
-        { id: 'welcome', number: 1, label: 'Welcome', icon: <Home size={24} /> },
-        { id: 'id-assessment', number: 2, label: 'ID Assessment', icon: <FileCheck size={24} /> },
-        { id: 'photo-upload', number: 3, label: 'Photo Upload', icon: <Camera size={24} /> },
-        { id: 'audio-recording', number: 4, label: 'Audio', icon: <Mic size={24} /> },
-        { id: 'video-recording', number: 5, label: 'Video', icon: <Video size={24} /> },
-        { id: 'completion', number: 6, label: 'Finish', icon: <CheckCircle2 size={24} /> }
-    ];
-};
-
 const StepIndicator = ({ currentStep, completedSteps, onStepClick }: StepIndicatorProps) => {
-    const steps = getSteps(currentStep, completedSteps);
+    const steps = [
+        { id: 'welcome', label: 'Welcome', icon: <Home size={24} /> },
+        { id: 'id-assessment', label: 'ID Assessment', icon: <FileCheck size={24} /> },
+        { id: 'photo-upload', label: 'Photo Upload', icon: <Camera size={24} /> },
+        { id: 'audio-recording', label: 'Audio', icon: <Mic size={24} /> },
+        { id: 'video-recording', label: 'Video', icon: <Video size={24} /> },
+        { id: 'completion', label: 'Finish', icon: <CheckCircle2 size={24} /> }
+    ];
 
     const getCurrentStepIndex = () => {
         return steps.findIndex(step => step.id === currentStep);

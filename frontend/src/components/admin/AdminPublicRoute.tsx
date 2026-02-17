@@ -1,7 +1,8 @@
+import type { ReactNode } from 'react';
 import { Navigate } from 'react-router-dom';
 
 interface PublicRouteProps {
-    children: JSX.Element;
+    children: ReactNode;
 }
 
 const AdminPublicRoute = ({ children }: PublicRouteProps) => {

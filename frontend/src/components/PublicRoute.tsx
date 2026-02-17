@@ -1,9 +1,10 @@
+import type { ReactNode } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Spinner } from 'react-bootstrap';
 
 interface PublicRouteProps {
-    children: JSX.Element;
+    children: ReactNode;
 }
 
 const PublicRoute = ({ children }: PublicRouteProps) => {

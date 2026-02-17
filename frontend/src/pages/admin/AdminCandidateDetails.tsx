@@ -124,21 +124,6 @@ const AdminCandidateDetails = () => {
         }
     };
 
-    const calculateProgress = () => {
-        if (!candidate) return 0;
-        const steps = ['welcome', 'photo', 'audio', 'video', 'questionnaire', 'completion'];
-        const currentIndex = steps.indexOf(candidate.onboardingStep);
-        return Math.round(((currentIndex + 1) / steps.length) * 100);
-    };
-
-    const getStepStatus = (step: string) => {
-        if (!candidate) return false;
-        const steps = ['welcome', 'photo', 'audio', 'video', 'questionnaire', 'completion'];
-        const currentIndex = steps.indexOf(candidate.onboardingStep);
-        const stepIndex = steps.indexOf(step);
-        return stepIndex <= currentIndex;
-    };
-
     const getMediaUrl = (path: string) => {
         if (!path) return '';
         if (path.startsWith('http')) return path;
@@ -151,7 +136,6 @@ const AdminCandidateDetails = () => {
     const photo = candidate.uploads?.find(u => u.type === 'photo');
     const audio = candidate.uploads?.find(u => u.type === 'audio');
     const video = candidate.uploads?.find(u => u.type === 'video');
-    const progress = calculateProgress();
 
     return (
         <div className="admin-dashboard">

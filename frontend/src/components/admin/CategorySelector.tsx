@@ -1,6 +1,6 @@
 import React from 'react';
 import { Tooltip, OverlayTrigger } from 'react-bootstrap';
-import { GraduationCap, Briefcase, Award, HelpCircle } from 'lucide-react';
+import { GraduationCap, Briefcase, Award } from 'lucide-react';
 import './CategorySelector.css';
 
 interface CategorySelectorProps {

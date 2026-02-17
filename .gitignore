@@ -31,4 +31,4 @@ yarn-error.log*
 # Backend specific
 backend/backend/node_modules/
 backend/backend/.env
-backend/backend/uploads/
+backend/uploads/

@@ -57,7 +57,7 @@ const ResetPassword = () => {
                     <Card className="login-box p-4 text-center">
                         <h3 className="text-danger mb-3">Invalid Link</h3>
                         <p className="text-white-50 mb-4">This password reset link is invalid or missing a token.</p>
-                        <Button as={Link} to="/forgot-password" className="btn-gold">
+                        <Button as={Link as any} to="/forgot-password" className="btn-gold">
                             Request New Link
                         </Button>
                     </Card>
@@ -84,7 +84,7 @@ const ResetPassword = () => {
                             <h4 className="text-white mb-3">Success!</h4>
                             <p className="text-white-50 mb-4">Your password has been updated.</p>
                             <p className="text-muted small">Redirecting to login...</p>
-                            <Button as={Link} to="/login" className="btn-gold w-100">
+                            <Button as={Link as any} to="/login" className="btn-gold w-100">
                                 Login Now
                             </Button>
                         </div>

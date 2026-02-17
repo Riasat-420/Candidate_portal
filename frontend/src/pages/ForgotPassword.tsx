@@ -49,7 +49,7 @@ const ForgotPassword = () => {
                             <p className="text-muted small">
                                 (Since this is a demo, check the <strong>browser console</strong> or <strong>backend terminal</strong> for the link!)
                             </p>
-                            <Button as={Link} to="/login" className="btn-gold w-100">
+                            <Button as={Link as any} to="/login" className="btn-gold w-100">
                                 Return to Login
                             </Button>
                         </div>

@@ -1,34 +1,41 @@
 import { useState, useEffect } from 'react';
-import { Container, Button, Modal, Row, Col } from 'react-bootstrap';
+import { Container } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
-import { FileText, Eye, Trash2, Check, X } from 'lucide-react';
+import { FileText, Eye, Trash2 } from 'lucide-react';
 import AdminSidebar from '../../components/admin/AdminSidebar';
 import ConfirmationModal from '../../components/admin/ConfirmationModal';
 import api from '../../services/api';
 import '../admin/AdminDashboard.css';
-import './AdminQuestionnaires.css';
+import '../admin/AdminCandidates.css';
 
 interface Questionnaire {
-    id: string;
-    title: string;
-    candidateName: string;
-    candidate_name: string;
-    status: string;
-    created_at: string;
-    createdAt: string;
+    id: number;
+    userId: number;
+    personalInfo?: any;
     submittedAt: string;
-    userId: string;
-    workExperience?: string;
-    details?: any; // For full details in modal
+    completed: boolean;
+    // UI fields populated during fetch
+    title?: string;
+    candidateName?: string;
+    candidate_name?: string;
+    status?: string;
+    createdAt?: string;
+    created_at?: string;
+    User?: {
+        id: number;
+        firstName: string;
+        lastName: string;
+        email: string;
+        candidateNumber?: string;
+    };
 }
 
 const AdminQuestionnaires = () => {
+    const navigate = useNavigate();
     const [questionnaires, setQuestionnaires] = useState<Questionnaire[]>([]);
     const [loading, setLoading] = useState(true);
-    const [selectedQuestionnaire, setSelectedQuestionnaire] = useState<Questionnaire | null>(null);
-    const [showViewModal, setShowViewModal] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
-    const navigate = useNavigate();
+    const [selectedQuestionnaire, setSelectedQuestionnaire] = useState<Questionnaire | null>(null);
 
     useEffect(() => {
         const adminToken = localStorage.getItem('adminToken');
@@ -36,7 +43,6 @@ const AdminQuestionnaires = () => {
             navigate('/admin/login');
             return;
         }
-
         fetchQuestionnaires();
     }, [navigate]);
 
@@ -47,13 +53,15 @@ const AdminQuestionnaires = () => {
                 headers: { Authorization: `Bearer ${token}` }
             });
 
-            // Transform data if needed to match interface
-            const data = response.data.questionnaires.map((q: any) => ({
+            // Map response to match interface expectations
+            const data = (response.data || []).map((q: any) => ({
                 ...q,
-                title: q.title || `Questionnaire #${q.id.substring(0, 8)}...`
+                title: q.title || `Questionnaire #${q.id}`,
+                candidateName: q.User ? `${q.User.firstName} ${q.User.lastName}` : (q.candidateName || 'Unknown'),
+                status: q.completed ? 'Completed' : 'Pending'
             }));
 
-            setQuestionnaires(data || []);
+            setQuestionnaires(data);
         } catch (error) {
             console.error('Failed to fetch questionnaires:', error);
         } finally {
@@ -62,8 +70,8 @@ const AdminQuestionnaires = () => {
     };
 
     const handleView = (q: Questionnaire) => {
-        // Use candidate_id/userId to fetch the questionnaire context
-        navigate(`/admin/questionnaires/${q.userId || q.candidate_id}`);
+        const targetId = q.userId;
+        navigate(`/admin/candidates/${targetId}?tab=questionnaire`);
     };
 
     const handleDeleteClick = (q: Questionnaire) => {
@@ -88,9 +96,9 @@ const AdminQuestionnaires = () => {
         }
     };
 
-    const formatDate = (dateString: string) => {
+    const formatDate = (dateString: string | undefined) => {
         if (!dateString) return 'N/A';
-        return new Date(dateString).toLocaleDateString('en-GB'); // DD/MM/YYYY format as in screenshot
+        return new Date(dateString).toLocaleDateString('en-GB');
     };
 
     return (
@@ -98,21 +106,19 @@ const AdminQuestionnaires = () => {
             <AdminSidebar />
             <div className="admin-content">
                 <Container fluid className="admin-questionnaires-container">
-                    {/* Header */}
                     <div className="page-header">
                         <div>
                             <h1 className="page-title">
                                 <FileText size={32} color="#c9a227" />
                                 Questionnaires
                             </h1>
-                            <p className="page-subtitle">View and manage all candidate questionnaires in the system</p>
+                            <p className="page-subtitle">View and manage all candidate questionnaires</p>
                         </div>
                         <div className="total-badge">
                             {questionnaires.length} TOTAL
                         </div>
                     </div>
 
-                    {/* Table View */}
                     {loading ? (
                         <div className="text-center text-white py-5">
                             <div className="spinner-border text-gold" role="status"></div>
@@ -143,10 +149,10 @@ const AdminQuestionnaires = () => {
                                                     {q.title}
                                                 </td>
                                                 <td data-label="Candidate" className="col-candidate">
-                                                    {q.candidateName || q.candidate_name}
+                                                    {q.candidateName}
                                                 </td>
                                                 <td data-label="Status">
-                                                    <span className={`status-badge ${q.status.toLowerCase()}`}>
+                                                    <span className={`status-badge ${q.status?.toLowerCase()}`}>
                                                         {q.status}
                                                     </span>
                                                 </td>
@@ -186,7 +192,7 @@ const AdminQuestionnaires = () => {
                 onHide={() => setShowDeleteModal(false)}
                 onConfirm={confirmDelete}
                 title="Delete Questionnaire"
-                message={`Are you sure you want to delete the questionnaire for ${selectedQuestionnaire?.candidateName || selectedQuestionnaire?.candidate_name}? This action cannot be undone.`}
+                message={`Are you sure you want to delete the questionnaire for ${selectedQuestionnaire?.candidateName}?`}
                 confirmText="Delete"
                 confirmVariant="danger"
             />
